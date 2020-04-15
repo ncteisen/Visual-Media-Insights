@@ -118,7 +118,7 @@ class Plotter:
         ax.set_xticklabels(xlabels, rotation=90)
 
         if save:
-            path = "img" + "/" + show.slug
+            path = "../img" + "/" + show.slug
             plt.savefig(path)
 
 
@@ -140,7 +140,7 @@ class Plotter:
         self._plot(show1, fig, ax1, False)
         self._plot(show2, fig, ax2, False)
         plt.tight_layout()
-        path = "img/{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
+        path = "../img/{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
         plt.savefig(path)
 
 
