@@ -1,7 +1,13 @@
 import sys
+import logging
 
 from db.db import DbClient
 from plot.plotter import Plotter
+
+logging.basicConfig(format='%(asctime)s - %(filename)20s: %(message)s');
+
+root = logging.getLogger()
+root.setLevel(logging.INFO)
 
 if (len(sys.argv)) < 2:
 	print("Usage: python scraper.py <TITLE> [<TITLE>]")

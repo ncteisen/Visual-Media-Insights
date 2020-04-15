@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
 from pathlib import Path
+import logging
 
 _AUTO_SCALE = True
 
@@ -103,12 +104,15 @@ class Plotter:
 
 
     def plot_one(self, show):
+        logging.info("Plotting %s..." % show.title)
         fig, ax = plt.subplots(**self._subplot_args(show.episode_count))
         self._setup(show, fig, ax)
         self._plot(show, fig, ax, True)
+        logging.info("Done!")
 
 
     def plot_two(self, show1, show2):
+        logging.info("Plotting %s VS %s..." % (show1.title, show2.title))
         fig, (ax1, ax2) = plt.subplots(1, 2, **self._subplot_args(show1.episode_count + show2.episode_count))
         ax1.set_ylabel("episode score", fontsize=_LABEL_SIZE)
         self._setup(show1, fig, ax1)
@@ -118,6 +122,7 @@ class Plotter:
         plt.tight_layout()
         path = "../img/{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
         plt.savefig(path)
+        logging.info("Done!")
 
 
 
