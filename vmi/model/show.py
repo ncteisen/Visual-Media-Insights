@@ -28,4 +28,8 @@ class Show:
 		self.seasons[season].append(episode)
 
 	def __str__(self):
-		return "{title} - {rating}".format(title=self.title, rating=self.rating)
+		return "Show[title={title}, imdb_id={imdb_id}, season_count={season_count}, episode_count={episode_count}]".format(
+			title=self.title, 
+			imdb_id=self.imdb_id,
+			season_count=self.season_count,
+			episode_count=self.episode_count)
