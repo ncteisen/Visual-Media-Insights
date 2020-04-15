@@ -35,36 +35,16 @@ _COLORS = [
 ]
 
 class Plotter:
-    def _setup(self, show):
-        fig = plt.figure(
-            figsize=(10 + 5 * max(show.episode_count / 25, 1), 7.5),
-            dpi=80,
-            facecolor=_BACKGROUND
-        )
 
-        ax = plt.axes(facecolor=_BACKGROUND)
-        ax.set_prop_cycle(color=_COLORS)
+    def _subplot_args(self, episode_count):
+        return {
+            "figsize": (10 + 5 * max(episode_count / 25, 1), 7.5), 
+            "dpi": 80, 
+            "facecolor": _BACKGROUND,
+            "sharey": True
+        }
 
-        if not _AUTO_SCALE:
-            ax.set_ylim(1, 10)
-            ax.autoscale(False, axis='y')
-
-        # Title
-        plt.title(str(show), fontsize=_TITLE_SIZE)
-
-        # Labels
-        x_label = "%d episodes" % show.episode_count
-
-        if show.season_count > 1:
-            x_label = "{x_label} - {season_count} seasons".format(x_label=x_label, season_count=show.season_count)
-
-        plt.xlabel(x_label, fontsize=_LABEL_SIZE)
-        plt.ylabel("episode score", fontsize=_LABEL_SIZE)
-
-        return fig, ax
-
-
-    def _setup2(self, show, fig, ax):
+    def _setup(self, show, fig, ax):
         ax.set_facecolor(_BACKGROUND)
         ax.set_prop_cycle(color=_COLORS)
 
@@ -123,20 +103,16 @@ class Plotter:
 
 
     def plot_one(self, show):
-        fig, ax = self._setup(show)
+        fig, ax = plt.subplots(**self._subplot_args(show.episode_count))
+        self._setup(show, fig, ax)
         self._plot(show, fig, ax, True)
 
 
     def plot_two(self, show1, show2):
-        fig, (ax1, ax2) = plt.subplots(1, 2, 
-            figsize=(10 + 5 * max((show1.episode_count + show2.episode_count) / 25, 1), 7.5), 
-            dpi=80, 
-            facecolor=_BACKGROUND,
-            sharey=True)
+        fig, (ax1, ax2) = plt.subplots(1, 2, **self._subplot_args(show1.episode_count + show2.episode_count))
         ax1.set_ylabel("episode score", fontsize=_LABEL_SIZE)
-        self._setup2(show1, fig, ax1)
-        self._setup2(show2, fig, ax2)
-        # plt.axes(facecolor=_BACKGROUND)
+        self._setup(show1, fig, ax1)
+        self._setup(show2, fig, ax2)
         self._plot(show1, fig, ax1, False)
         self._plot(show2, fig, ax2, False)
         plt.tight_layout()

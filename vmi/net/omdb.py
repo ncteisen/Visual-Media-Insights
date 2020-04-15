@@ -46,7 +46,6 @@ class OmdbApiClient:
 		return show_json
 
 	def get_show_data(self, title):
-		print (title)
 		show_info_json = self._get_show_data_json(title)
 		data = OmdbShowData()
 		data.season_count = int(show_info_json["totalSeasons"])
