@@ -104,12 +104,15 @@ class Plotter:
         gp = np.poly1d(gz)
         ax.plot(gx, gp(gx), color=_FOREGROUND)
 
+        ax.annotate(self._format_best_episode(show), (0,0), (0, -80), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=_LABEL_SIZE)
+        ax.annotate(self._format_worst_episode(show), (0,0), (0, -100), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=_LABEL_SIZE)
+
         # Ticks
         ax.set_xticks(range(1, len(xlabels) + 1))
         ax.set_xticklabels(xlabels, rotation=90)
 
         if save:
-            path = "../img/single/" + show.slug
+            path = "../img/" + show.slug
             plt.savefig(path, bbox_inches="tight")
 
 
@@ -134,8 +137,6 @@ class Plotter:
         fig, ax = plt.subplots(**self._subplot_args(show.episode_count))
         ax.set_ylabel("episode score", fontsize=_LABEL_SIZE)
         self._setup(show, fig, ax)
-        plt.annotate(self._format_best_episode(show), (0,0), (0, -80), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=_LABEL_SIZE)
-        plt.annotate(self._format_worst_episode(show), (0,0), (0, -100), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=_LABEL_SIZE)
         self._plot(show, fig, ax, True)
         logging.info("Done!")
 
@@ -153,7 +154,7 @@ class Plotter:
         plt.tight_layout()
         plt.subplots_adjust(top=0.85)
         path = "../img/compare/{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
-        plt.savefig(path)
+        plt.savefig(path, bbox_inches="tight")
         logging.info("Done!")
 
 
