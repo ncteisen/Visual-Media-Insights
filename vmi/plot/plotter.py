@@ -112,7 +112,7 @@ class Plotter:
         ax.set_xticklabels(xlabels, rotation=90)
 
         if save:
-            path = "../img/" + show.slug
+            path = "../img/single/" + show.slug
             plt.savefig(path, bbox_inches="tight")
 
 
