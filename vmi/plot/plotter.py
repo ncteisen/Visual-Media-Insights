@@ -3,6 +3,7 @@ import numpy as np
 from scipy import interpolate
 from pathlib import Path
 import logging
+from insights.show import ShowInsights
 
 _AUTO_SCALE = True
 
@@ -40,7 +41,8 @@ class Plotter:
 
     def _subplot_args(self, episode_count):
         return {
-            "figsize": (10 + 5 * max(episode_count / 25, 1), 7.5), 
+            # TODO(ncteisen): support dynamic height
+            "figsize": (10 + 5 * max(episode_count / 25, 1), 10), 
             "dpi": 80, 
             "facecolor": _BACKGROUND,
             "sharey": True
@@ -108,17 +110,32 @@ class Plotter:
 
         if save:
             path = "../img/single/" + show.slug
-            plt.savefig(path)
+            plt.savefig(path, bbox_inches="tight")
 
 
     def _format_compare_title(self, show1, show2):
         return "{t1} VS {t2}".format(t1=show1.title, t2=show2.title)
 
 
+    def _format_best_episode(self, show):
+        insights = ShowInsights(show)
+        best = insights.best_episode
+        return "Best:    {label} - {title} ({score}/10)".format(label=best.label, title=best.title, score=best.score)
+
+
+    def _format_worst_episode(self, show):
+        insights = ShowInsights(show)
+        worst = insights.worst_episode
+        return "Worst:  {label} - {title} ({score}/10)".format(label=worst.label, title=worst.title, score=worst.score)
+
+
     def plot_one(self, show):
         logging.info("Plotting %s..." % show.title)
         fig, ax = plt.subplots(**self._subplot_args(show.episode_count))
+        ax.set_ylabel("episode score", fontsize=_LABEL_SIZE)
         self._setup(show, fig, ax)
+        plt.annotate(self._format_best_episode(show), (0,0), (0, -80), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=_LABEL_SIZE)
+        plt.annotate(self._format_worst_episode(show), (0,0), (0, -100), xycoords='axes fraction', textcoords='offset points', va='top', fontsize=_LABEL_SIZE)
         self._plot(show, fig, ax, True)
         logging.info("Done!")
 

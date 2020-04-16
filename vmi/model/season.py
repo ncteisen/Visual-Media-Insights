@@ -9,5 +9,5 @@ class Season:
 
 	def __str__(self):
 		return "Season[season_number={number}, episode_count={episode_count}]".format(
-			label=self.number,
-			title=self.episode_count)
+			number=self.number,
+			episode_count=self.episode_count)
