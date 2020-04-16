@@ -10,10 +10,8 @@ class Episode:
 		self.title = title
 		# imdb episode rating
 		self.score = score
-
-	@property
-	def label(self):
-		return "{season:02d}x{number:02d}".format(season=self.season, number=self.number)
+		# short label for the episode
+		self.label = "{season:02d}x{number:02d}".format(season=season, number=number)
 
 	def __str__(self):
 		return "{label}: {title}".format(label=self.label, title=self.title)

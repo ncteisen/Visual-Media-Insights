@@ -3,9 +3,6 @@ import json
 import sys
 import os
 
-from model.episode import Episode
-from model.show import Show
-
 _BASE_OMDB_URL = "http://www.omdbapi.com/?t={title}&type=series&apikey={api_key}"
 
 class OmdbShowData:

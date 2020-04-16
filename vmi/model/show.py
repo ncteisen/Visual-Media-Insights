@@ -1,6 +1,3 @@
-from episode import Episode
-from season import Season
-
 # Metadata about a particular show.
 class ShowMetadata:
 	def __init__(self, title, slug, rating, imdb_id, season_count):
@@ -25,14 +22,8 @@ class Show:
 		self.rating = show_metadata.rating
 		self.imdb_id = show_metadata.imdb_id
 		self.season_list = season_list
-
-	@property
-	def season_count(self):
-		return len(self.season_list)
-
-	@property
-	def episode_count(self):
-		return sum(map(lambda season: season.episode_count, self.season_list))
+		self.season_count = len(season_list)
+		self.episode_count = sum(map(lambda season: len(season.episode_list), season_list))
 
 	def __str__(self):
 		return "Show[title={title}, imdb_id={imdb_id}, season_count={season_count}, episode_count={episode_count}]".format(

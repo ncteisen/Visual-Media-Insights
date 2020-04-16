@@ -4,7 +4,10 @@ class Season:
 		self.number = number
 		# list of episode_list in the season.
 		self.episode_list = episode_list
+		# number of episodes in the season.
+		self.episode_count = len(episode_list)
 
-	@property
-	def episode_count(self):
-		return len(self.episode_list)
+	def __str__(self):
+		return "Season[season_number={number}, episode_count={episode_count}]".format(
+			label=self.number,
+			title=self.episode_count)
