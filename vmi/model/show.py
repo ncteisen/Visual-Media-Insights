@@ -1,31 +1,38 @@
-class ShowHandle:
+from episode import Episode
+from season import Season
+
+# Metadata about a particular show.
+class ShowMetadata:
 	def __init__(self, title, slug, rating, imdb_id, season_count):
+		# title of the show.
 		self.title = title
+		# slugified title, safe for use in filenames.
 		self.slug = slug
+		# imdb rating of the overall show.
 		self.rating = rating
+		# imdb id of the show.
 		self.imdb_id = imdb_id
+		# number of seasons.
 		self.season_count = season_count
 
 
-
+# All data we care about from a particular show. This will be pickled up into
+# our mini, file-based database
 class Show:
-	def __init__(self, show_handle):
-		self.title = show_handle.title
-		self.slug = show_handle.slug
-		self.rating = show_handle.rating
-		self.imdb_id = show_handle.imdb_id
-		self.seasons = {season: [] for season in range(1, show_handle.season_count + 1)}
+	def __init__(self, show_metadata, season_list):
+		self.title = show_metadata.title
+		self.slug = show_metadata.slug
+		self.rating = show_metadata.rating
+		self.imdb_id = show_metadata.imdb_id
+		self.season_list = season_list
 
 	@property
 	def season_count(self):
-		return len(self.seasons)
+		return len(self.season_list)
 
 	@property
 	def episode_count(self):
-		return sum(map(len, self.seasons.values()))
-
-	def add_episode(self, season, episode):
-		self.seasons[season].append(episode)
+		return sum(map(lambda season: season.episode_count, self.season_list))
 
 	def __str__(self):
 		return "Show[title={title}, imdb_id={imdb_id}, season_count={season_count}, episode_count={episode_count}]".format(

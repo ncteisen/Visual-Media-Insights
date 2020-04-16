@@ -15,15 +15,15 @@ class DbClient:
 
 	def get_show(self, title):
 		logging.info("Getting show %s..." % title)
-		show_handle = self.net.get_show_handle(title)
-		logging.info("Got handle for show %s!" % show_handle.title)
-		if (self.pickler.has(show_handle)):
-			logging.info("Show %s was found in the pickle DB!" % show_handle.title)
-			return self.pickler.get(show_handle)
+		show_metadata = self.net.get_show_metadata(title)
+		logging.info("Got handle for show %s!" % show_metadata.title)
+		if (self.pickler.has(show_metadata)):
+			logging.info("Show %s was found in the pickle DB!" % show_metadata.title)
+			return self.pickler.get(show_metadata)
 		else:
-			logging.info("Scraping data for show %s..." % show_handle.title)
-			show = self.net.parse_show(show_handle)
-			logging.info("Done scraping data for show %s!" % show_handle.title)
+			logging.info("Scraping data for show %s..." % show_metadata.title)
+			show = self.net.get_show(show_metadata)
+			logging.info("Done scraping data for show %s!" % show_metadata.title)
 			self.pickler.put(show)
 			return show
 

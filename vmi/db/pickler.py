@@ -1,7 +1,7 @@
 import os
 import pickle
 
-from model.show import Show, ShowHandle
+from model.show import Show, ShowMetadata
 
 class Pickler:
 	def __init__(self, dbpath):
@@ -20,7 +20,7 @@ class Pickler:
 # module testing only
 if __name__ == "__main__":
 	pickler = Pickler("/tmp/pickles/")
-	show = ShowHandle("Arrested Development", "arrested-development", 8.7, 3)
+	show = ShowMetadata("Arrested Development", "arrested-development", 8.7, 3)
 	assert(not pickler.has(show))
 	pickler.put(show)
 	assert(pickler.has(show))

@@ -74,20 +74,20 @@ class Plotter:
         xlabels = []
         gx, gy = [], []
 
-        for season, episodes in show.seasons.items():
-            if not episodes:
+        for season in show.season_list:
+            if not season.episode_list:
                 continue
 
-            x = list(map(lambda e: e.index, episodes))
-            y = list(map(lambda e: e.score, episodes))
+            x = list(map(lambda e: e.index, season.episode_list))
+            y = list(map(lambda e: e.score, season.episode_list))
 
-            xlabels.extend(map(lambda e: e.label, episodes))
+            xlabels.extend(map(lambda e: e.label, season.episode_list))
 
             gx.extend(x)
             gy.extend(y)
 
-            # Plots the interpolation of episodes for each season.
-            sp_x = np.linspace(episodes[0].index, episodes[-1].index, len(episodes) * 10)
+            # Plots the interpolation of season.episode_list for each season.
+            sp_x = np.linspace(season.episode_list[0].index, season.episode_list[-1].index, len(season.episode_list) * 10)
             sp_y = interpolate.make_interp_spline(x, y)(sp_x)
             ax.plot(sp_x, sp_y)
 

@@ -1,62 +1,91 @@
 import requests
 import sys
+import logging
 from bs4 import BeautifulSoup as Soup
 
-from model.episode import Episode
-from model.show import Show
+from model.show import ShowMetadata
 
 _BASE_IMDB_URL = "https://www.imdb.com/title/{imdb_id}/episodes?season={season}"
 
+class ImdbEpisodeData:
+	def __init__(self):
+		self.index = None
+		self.season = None
+		self.number = None
+		self.title = None
+		self.score = None
+
+class ImdbSeasonData:
+	def __init__(self):
+		self.episode_list = []
+
+class ImdbShowData:
+	def __init__(self):
+		self.season_list = []
+
 class ImdbScraper:
-	# Fetch episode info for a given show from IMDB.
-	# from: https://github.com/federicocalendino/binging-stonks
-	def _scrape_episodes(self, show):
-		episodes = []
-		index = 1
-		for season_number in range(1, show.season_count + 1):
-			season_url = _BASE_IMDB_URL.format(imdb_id=show.imdb_id, season=season_number)
+	def __init__(self):
+		self.episode_index = None
 
-			content = requests.get(season_url)
-			soup = Soup(content.text, features="html.parser")
+	def _scrape_episode(self, div, season_number):
+		div = div.find('div', {'class': 'info'})
 
-			for div in soup.find_all('div', {'class': 'list_item'}):
-				div = div.find('div', {'class': 'info'})
+		title = div.find('a', {'itemprop': 'name'}).text
 
-				episode_title = div.find('a', {'itemprop': 'name'}).text
-				episode_number = int(div.find('meta', {'itemprop': 'episodeNumber'}).attrs.get('content', '0'))
+		number = int(div.find('meta', {'itemprop': 'episodeNumber'}).attrs.get('content', '0'))
+		if number == 0:
+			logging.error("IMDB scraper encountered episode number=None")
+			return None
+		
+		score_div = div.find('span', {'class': 'ipl-rating-star__rating'})
+		if not score_div:
+			logging.error("IMDB scraper encountered episode score_div=None")
+			return None
+		
+		score = float(score_div.text)
+		if score == 0: 
+			logging.error("IMDB scraper encountered episode score=None")
+			return None
 
-				if episode_number == 0:
-					continue
+		episode_data = ImdbEpisodeData()
+		episode_data.season = season_number
+		episode_data.index = self.episode_index
+		episode_data.number = number
+		episode_data.title = title
+		episode_data.score = score
 
-				episode_score_div = div.find('span', {'class': 'ipl-rating-star__rating'})
+		self.episode_index += 1
+		return episode_data
 
-				if not episode_score_div:
-					continue
 
-				episode_score = float(episode_score_div.text)
+	def _scrape_season(self, show_metadata, season_number):
+		season_data = ImdbSeasonData()
 
-				if episode_score == 0:
-					continue
+		season_url = _BASE_IMDB_URL.format(imdb_id=show_metadata.imdb_id, season=season_number)
+		content = requests.get(season_url)
+		soup = Soup(content.text, features="html.parser")
 
-				episode = Episode(
-					index=index,
-					season=season_number,
-					number=episode_number,
-					title=episode_title,
-					score=episode_score,
-				)
+		for div in soup.find_all('div', {'class': 'list_item'}):
+			episode_data = self._scrape_episode(div, season_number)
+			if (episode_data):
+				season_data.episode_list.append(episode_data)
+		return season_data
 
-				index += 1
-				show.add_episode(season_number, episode)
+	# Fetch episode info for a given show metadata from IMDB.
+	def scrape_show(self, show_metadata):
+		self.episode_index = 1
+
+		show_data = ImdbShowData()
+		for season_number in range(1, show_metadata.season_count + 1):
+			season_data = self._scrape_season(show_metadata, season_number)
+			show_data.season_list.append(season_data)
+		return show_data
 
 
 # module testing only
 if __name__ == "__main__":
 	# print("Usage: python -m net.imdb")
 	scraper = ImdbScraper()
-	imdb_id = "tt0367279"
-	num_seasons = 3
-	show = Show("Arrested Development", 8.7, 3)
-	scraper._scrape_episodes(imdb_id, num_seasons, show)
-	print show
-	print show.seasons
+	show_metadata = ShowMetadata("Arrested Development", "arrested", 8.7, "tt0367279", 3)
+	show = scraper.scrape_show(show_metadata)
+	print str(show)
