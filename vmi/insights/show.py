@@ -1,6 +1,7 @@
 import sys
 from scipy.stats import linregress
 import itertools
+import statistics
 
 from model.episode import Episode
 from model.season import Season
@@ -21,6 +22,10 @@ class ShowInsights:
 		return max(self.all_episodes, key=lambda e : e.score)
 
 	@property
+	def avg_episode_rating(self):
+		return statistics.mean([e.score for e in self.all_episodes])
+
+	@property
 	def all_episodes(self):
 		return list(itertools.chain.from_iterable([season.episode_list for season in self.show.season_list]))
 
@@ -34,4 +39,4 @@ if __name__ == "__main__":
 	dbclient = DbClient()
 	show = dbclient.get_show(sys.argv[1])
 	insights = ShowInsights(show)
-	print(insights.slope)
+	print(insights.show.rating, insights.avg_episode_rating)

@@ -1,5 +1,6 @@
 import sys
 from scipy.stats import linregress
+import statistics
 
 from model.episode import Episode
 from model.season import Season
@@ -18,6 +19,10 @@ class SeasonInsights:
 	@property
 	def best_episode(self):
 		return max(self.season.episode_list, key=lambda e : e.score)
+
+	@property
+	def avg_episode_rating(self):
+		return statistics.mean([e.score for e in self.season.episode_list])
 
 	@property
 	def slope(self):
