@@ -1,25 +1,21 @@
-import matplotlib.pyplot as plt
-from wordcloud import WordCloud, STOPWORDS
-import pandas as pd 
-import numpy as np
-from pathlib import Path
 import logging
-from insights.show import ShowInsights
-from insights.season import SeasonInsights
-from model.review import Review
-import unidecode
 import re
 import sys
+import unidecode
 
+import matplotlib.pyplot as plt
+
+from wordcloud import WordCloud, STOPWORDS
+
+from db.db import DbClient
+from insights.show import ShowInsights
+from insights.season import SeasonInsights
 from model.episode import Episode
 from model.season import Season
 from model.show import Show
-
-from db.db import DbClient
 from net.net import Net
+from util.logger import LoggerConfig
 
-_BACKGROUND = 'black'
-_MIDDLEGROUND = 'gray'
 _FOREGROUND = 'white'
 
 _TITLE_SIZE = 20
@@ -41,6 +37,7 @@ def _get_corpus(review_list):
 
 
 def _get_wordcloud(review_list, extra_stopwords):
+    logging.info("Creating wordcloud...")
     corpus = _get_corpus(review_list)
     return WordCloud(width=1000, height=1000, 
                     background_color=_FOREGROUND, 
@@ -49,11 +46,13 @@ def _get_wordcloud(review_list, extra_stopwords):
 
 
 def _format_show_title(show):
-    return "{title} - ({rating}/10)".format(title=show.title, rating=show.rating)
+    return "{title} - ({rating}/10)".format(
+        title=show.title, rating=show.rating)
 
 
 def _format_episode_title(episode):
-    return "{label} - ({rating}/10)".format(title=show.title, rating=show.rating)
+    return "{label} - ({rating}/10)".format(
+        title=show.title, rating=show.rating)
 
 
 def _format_episode_title(episode):
@@ -64,6 +63,7 @@ def _format_episode_title(episode):
 
 
 def make_wordcloud_plot(show, title, best, worst, fname):
+    logging.info("Making wordcloud for %s..." % show.title)
     net = Net()
 
     extra_stopwords = re.sub("[^\w]", " ",  show.title.lower()).split()
@@ -71,6 +71,7 @@ def make_wordcloud_plot(show, title, best, worst, fname):
     worst_wordcloud = _get_wordcloud(net.get_reviews(worst.imdb_id), extra_stopwords)
       
 
+    logging.info("Plotting...")
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 12), facecolor=None)
     st = fig.suptitle(title, fontsize=_TITLE_SIZE)
     st.set_y(0.97)
@@ -87,6 +88,7 @@ def make_wordcloud_plot(show, title, best, worst, fname):
     plt.tight_layout(pad=0) 
     path = "../img/cloud/" + fname
     plt.savefig(path, bbox_inches="tight")
+    logging.info("Done!")
 
 
 def _format_season_title(show, season, insights):
@@ -96,10 +98,14 @@ def _format_season_title(show, season, insights):
         rating=insights.avg_episode_rating)
 
 
-# module testing only
 if __name__ == "__main__":
+
+    # setup
+    LoggerConfig()
     dbclient = DbClient()
     net = Net()
+
+
     argc = len(sys.argv)
     if (argc < 2):
         print("Usage: python -m plot.cloud <TITLE> [<SEASON>]")
@@ -107,12 +113,14 @@ if __name__ == "__main__":
     
     show = dbclient.get_show(sys.argv[1])
     if (argc == 2):
+        # one show
         insights = ShowInsights(show)
         title = _format_show_title(show)
         best = insights.best_episode
         worst = insights.worst_episode
         fname = show.slug
     else:
+        # one season
         season = show.season_list[int(sys.argv[2]) - 1]
         insights = SeasonInsights(season)
         title = _format_season_title(show, season, insights)

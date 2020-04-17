@@ -1,13 +1,16 @@
+import logging
+import sys
+import unidecode
+
 import matplotlib.pyplot as plt
 import numpy as np
+
 from scipy import interpolate
-from pathlib import Path
-import logging
+
+from db.db import DbClient
 from insights.show import ShowInsights
 from insights.season import SeasonInsights
-import unidecode
-from db.db import DbClient
-import sys
+from util.logger import LoggerConfig
 
 _AUTO_SCALE = True
 
@@ -285,8 +288,14 @@ def plot_two_seasons(show1, season1, show2, season2):
 def _get_season(show, idx_str):
     return show.season_list[int(idx_str) - 1]
 
+
 if __name__ == "__main__":
+
+    # setup
+    LoggerConfig()
     dbclient = DbClient()
+
+
     argc = len(sys.argv)
     if (argc < 2):
         print("Usage: python -m plot.graph <TITLE> [<SEASON>]")
