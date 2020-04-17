@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from wordcloud import WordCloud, STOPWORDS 
+from wordcloud import WordCloud, STOPWORDS
 import pandas as pd 
 import numpy as np
 from pathlib import Path
@@ -30,6 +30,8 @@ _CUSTOM_STOPWORDS = ["show", "book", "series", "season", "character",
     "episode", "story", "seasons", "episodes", "characters",
     "books", "hbo", "will", "time"]
 
+_ALL_STOPWORDS = list(STOPWORDS) + _CUSTOM_STOPWORDS
+
 def _get_corpus(review_list):
     corpus = []
     for review in review_list:
@@ -38,11 +40,11 @@ def _get_corpus(review_list):
     return corpus
 
 
-def _get_wordcloud(review_list):
+def _get_wordcloud(review_list, extra_stopwords):
     corpus = _get_corpus(review_list)
     return WordCloud(width=1000, height=1000, 
                     background_color=_FOREGROUND, 
-                    stopwords=set(list(STOPWORDS) + _CUSTOM_STOPWORDS), 
+                    stopwords=set(_ALL_STOPWORDS + extra_stopwords), 
                     min_font_size=_LABEL_SIZE).generate(" ".join(corpus))
 
 
@@ -61,18 +63,16 @@ def _format_episode_title(episode):
         score=episode.score)
 
 
-def make_wordcloud_plot(show):
-    insights = ShowInsights(show)
+def make_wordcloud_plot(show, title, best, worst, fname):
     net = Net()
-    
-    best = insights.best_episode
-    worst = insights.worst_episode
-    best_wordcloud = _get_wordcloud(net.get_reviews(best.imdb_id))
-    worst_wordcloud = _get_wordcloud(net.get_reviews(worst.imdb_id))
+
+    extra_stopwords = re.sub("[^\w]", " ",  show.title.lower()).split()
+    best_wordcloud = _get_wordcloud(net.get_reviews(best.imdb_id), extra_stopwords)
+    worst_wordcloud = _get_wordcloud(net.get_reviews(worst.imdb_id), extra_stopwords)
       
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 12), facecolor=None)
-    st = fig.suptitle(_format_show_title(show), fontsize=_TITLE_SIZE)
+    st = fig.suptitle(title, fontsize=_TITLE_SIZE)
     st.set_y(0.97)
                      
     ax1.set_title(_format_episode_title(best), fontsize=_SUBTITLE_SIZE)
@@ -85,14 +85,40 @@ def make_wordcloud_plot(show):
 
     plt.subplots_adjust(top=0.85)
     plt.tight_layout(pad=0) 
-    path = "../img/cloud/" + show.slug
+    path = "../img/cloud/" + fname
     plt.savefig(path, bbox_inches="tight")
 
+
+def _format_season_title(show, season, insights):
+    return "{title}, season {number} ({rating:.2f}/10)".format(
+        title=show.title, 
+        number=season.number, 
+        rating=insights.avg_episode_rating)
 
 
 # module testing only
 if __name__ == "__main__":
     dbclient = DbClient()
     net = Net()
+    argc = len(sys.argv)
+    if (argc < 2):
+        print("Usage: python -m plot.cloud <TITLE> [<SEASON>]")
+        raise SystemExit(1)
+    
     show = dbclient.get_show(sys.argv[1])
-    make_wordcloud_plot(show)
+    if (argc == 2):
+        insights = ShowInsights(show)
+        title = _format_show_title(show)
+        best = insights.best_episode
+        worst = insights.worst_episode
+        fname = show.slug
+    else:
+        season = show.season_list[int(sys.argv[2]) - 1]
+        insights = SeasonInsights(season)
+        title = _format_season_title(show, season, insights)
+        best = insights.best_episode
+        worst = insights.worst_episode
+        fname = show.slug + "-season-" + str(season.number)
+
+    make_wordcloud_plot(show, title, best, worst, fname)
+
