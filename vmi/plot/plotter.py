@@ -4,6 +4,7 @@ from scipy import interpolate
 from pathlib import Path
 import logging
 from insights.show import ShowInsights
+import unidecode
 
 _AUTO_SCALE = True
 
@@ -89,9 +90,10 @@ class Plotter:
             gy.extend(y)
 
             # Plots the interpolation of season.episode_list for each season.
-            sp_x = np.linspace(season.episode_list[0].index, season.episode_list[-1].index, len(season.episode_list) * 10)
-            sp_y = interpolate.make_interp_spline(x, y)(sp_x)
-            ax.plot(sp_x, sp_y)
+            if (season.episode_count > 3):
+                sp_x = np.linspace(season.episode_list[0].index, season.episode_list[-1].index, len(season.episode_list) * 10)
+                sp_y = interpolate.make_interp_spline(x, y)(sp_x)
+                ax.plot(sp_x, sp_y)
 
             # Plots the per season trend
             z = np.polyfit(x, y, deg=1)
@@ -123,13 +125,19 @@ class Plotter:
     def _format_best_episode(self, show):
         insights = ShowInsights(show)
         best = insights.best_episode
-        return "Best:    {label} - {title} ({score}/10)".format(label=best.label, title=best.title, score=best.score)
+        return "Best:    {label} - {title} ({score}/10)".format(
+            label=best.label,
+            title=unidecode.unidecode(best.title),
+            score=best.score)
 
 
     def _format_worst_episode(self, show):
         insights = ShowInsights(show)
         worst = insights.worst_episode
-        return "Worst:  {label} - {title} ({score}/10)".format(label=worst.label, title=worst.title, score=worst.score)
+        return "Worst:  {label} - {title} ({score}/10)".format(
+            label=worst.label,
+            title=unidecode.unidecode(worst.title),
+            score=worst.score)
 
 
     def plot_one(self, show):
