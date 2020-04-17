@@ -2,7 +2,10 @@ import sys
 import logging
 
 from db.db import DbClient
+from net.net import Net
 from plot.plotter import Plotter
+from plot.cloud import make_wordcloud
+from insights.show import ShowInsights
 
 logging.basicConfig(format='%(asctime)s - %(filename)20s: %(message)s');
 
@@ -13,7 +16,7 @@ def _get_season(show, idx_str):
 	return show.season_list[int(idx_str) - 1]
 
 dbclient = DbClient()
-plotter = Plotter();
+plotter = Plotter()
 
 argc = len(sys.argv)
 if (argc < 2):
@@ -43,3 +46,4 @@ else:
 		show1 = dbclient.get_show(sys.argv[1])
 		show2 = dbclient.get_show(sys.argv[3])
 		plotter.plot_two_seasons(show1, _get_season(show1, sys.argv[2]), show2, _get_season(show2, sys.argv[4]))
+

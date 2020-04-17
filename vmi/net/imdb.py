@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup as Soup
 from model.show import ShowMetadata
 
 _BASE_IMDB_URL = "https://www.imdb.com/title/{imdb_id}/episodes?season={season}"
+_BASE_IMDB_EPISODE_REVIEW_URL = "https://www.imdb.com/title/{imdb_id}/reviews"
 
 class ImdbEpisodeData:
 	def __init__(self):
@@ -14,6 +15,7 @@ class ImdbEpisodeData:
 		self.number = None
 		self.title = None
 		self.score = None
+		self.imdb_id = None
 
 class ImdbSeasonData:
 	def __init__(self):
@@ -23,6 +25,15 @@ class ImdbShowData:
 	def __init__(self):
 		self.season_list = []
 
+class ImdbReviewData:
+	def __init__(self):
+		self.title = None
+		self.body = None
+
+class ImdbEpisodeReviewsData:
+	def __init__(self):
+		self.review_list = []
+
 class ImdbScraper:
 	def __init__(self):
 		self.episode_index = None
@@ -30,7 +41,9 @@ class ImdbScraper:
 	def _scrape_episode(self, div, season_number):
 		div = div.find('div', {'class': 'info'})
 
-		title = div.find('a', {'itemprop': 'name'}).text
+		name_div = div.find('a', {'itemprop': 'name'})
+		title = name_div.text
+		imdb_id = name_div['href'].split('/')[2]
 
 		number = int(div.find('meta', {'itemprop': 'episodeNumber'}).attrs.get('content', '0'))
 		if number == 0:
@@ -53,6 +66,7 @@ class ImdbScraper:
 		episode_data.number = number
 		episode_data.title = title
 		episode_data.score = score
+		episode_data.imdb_id = imdb_id
 
 		self.episode_index += 1
 		return episode_data
@@ -81,11 +95,28 @@ class ImdbScraper:
 			show_data.season_list.append(season_data)
 		return show_data
 
+	def _scrape_one_review(self, div):
+		review_data = ImdbReviewData()
+		review_data.title = div.find('a', {'class': 'title'}).text
+		review_data.body = div.find('div', {'class': 'text'}).text
+		return review_data
+
+
+	def scrape_top_reviews(self, imdb_id):
+		episode_reviews_url = _BASE_IMDB_EPISODE_REVIEW_URL.format(imdb_id=imdb_id)
+		content = requests.get(episode_reviews_url)
+		soup = Soup(content.text, features="html.parser")
+		review_data = ImdbEpisodeReviewsData()
+		counter = 0
+		for div in soup.find_all('div', {'class': 'imdb-user-review'}):
+			review_data.review_list.append(self._scrape_one_review(div))
+		return review_data
+
+
 
 # module testing only
 if __name__ == "__main__":
 	# print("Usage: python -m net.imdb")
 	scraper = ImdbScraper()
-	show_metadata = ShowMetadata("Arrested Development", "arrested", 8.7, "tt0367279", 3)
-	show = scraper.scrape_show(show_metadata)
-	print str(show)
+	reviews = scraper.scrape_top_reviews("tt2178784")
+	print str(reviews)

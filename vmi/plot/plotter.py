@@ -54,7 +54,7 @@ class Plotter:
 
 
     def _format_one_title(self, show):
-        return "{title} - ({rating:.2f}/10)".format(title=show.title, rating=show.rating)
+        return "{title} - ({rating}/10)".format(title=show.title, rating=show.rating)
 
 
     def _format_season_title(self, show, season, insights):

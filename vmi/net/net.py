@@ -3,6 +3,7 @@ import sys
 from slugify import slugify
 
 from model.episode import Episode
+from model.review import Review
 from model.season import Season
 from model.show import Show, ShowMetadata
 from omdb import OmdbApiClient, OmdbShowData
@@ -36,10 +37,20 @@ class Net:
 					episode.season, 
 					episode.number, 
 					episode.title, 
-					episode.score))
+					episode.score,
+					episode.imdb_id))
 			season_list.append(Season(i + 1, episode_list))
 		show = Show(show_metadata, season_list)
 		return show
+
+	# Based on imdb_id, attempts to read and parse top 25 reviews.
+	def get_reviews(self, imdb_id):
+		review_data = self.imdb.scrape_top_reviews(imdb_id)
+		review_list = []
+		for review in review_data.review_list:
+			review_list.append(Review(review.title, review.body))
+		return review_list
+
 
 
 
@@ -52,4 +63,4 @@ if __name__ == "__main__":
 	net = Net()
 	show_metadata = net.get_show_metadata(sys.argv[1])
 	show = net.get_show(show_metadata)
-	print(str(show))
+	print(show.season_list[0].episode_list[0].imdb_id)
