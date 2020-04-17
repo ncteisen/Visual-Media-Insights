@@ -119,4 +119,4 @@ if __name__ == "__main__":
 	# print("Usage: python -m net.imdb")
 	scraper = ImdbScraper()
 	reviews = scraper.scrape_top_reviews("tt2178784")
-	print str(reviews)
+	print(reviews)

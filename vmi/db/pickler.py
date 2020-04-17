@@ -24,4 +24,4 @@ if __name__ == "__main__":
 	assert(not pickler.has(show))
 	pickler.put(show)
 	assert(pickler.has(show))
-	print pickler.get(show)
+	print(pickler.get(show))

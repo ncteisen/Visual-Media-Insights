@@ -6,8 +6,8 @@ from model.episode import Episode
 from model.review import Review
 from model.season import Season
 from model.show import Show, ShowMetadata
-from omdb import OmdbApiClient, OmdbShowData
-from imdb import ImdbScraper
+from net.omdb import OmdbApiClient, OmdbShowData
+from net.imdb import ImdbScraper
 
 class Net:
 	def __init__(self):
@@ -19,7 +19,7 @@ class Net:
 		omdb_show_data = self.omdb.get_show_data(title)
 		return ShowMetadata(
 			omdb_show_data.title,
-			slugify(unicode(omdb_show_data.title)), 
+			slugify(omdb_show_data.title), 
 			omdb_show_data.imdb_rating, 
 			omdb_show_data.imdb_id,
 			omdb_show_data.season_count)

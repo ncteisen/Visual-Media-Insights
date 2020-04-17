@@ -62,4 +62,4 @@ if __name__ == "__main__":
 	# show_json = scraper.get_show_data(sys.argv[1])
 	# print json.dumps(show_json, indent=2)
 	handle = scraper.get_show_data(sys.argv[1])
-	print handle
+	print(handle)
