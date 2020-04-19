@@ -46,6 +46,12 @@ _COLORS = [
     '#000075',
 ]
 
+_GRAPH_OUTPUT_DIR = "../output/graphs/"
+
+def _savefig(fname):
+    path = _GRAPH_OUTPUT_DIR + fname
+    plt.savefig(path, bbox_inches="tight")
+
 def _subplot_args(episode_count):
     return {
         # TODO(ncteisen): support dynamic height
@@ -144,9 +150,7 @@ def _plot(show, fig, ax, save = False):
     ax.set_xticks(range(1, len(xlabels) + 1))
     ax.set_xticklabels(xlabels, rotation=90)
 
-    if save:
-        path = "../img/single/" + show.slug
-        plt.savefig(path, bbox_inches="tight")
+    if save: _savefig(show.slug)
 
 def _plot_season(show, season, fig, ax, save = False):
 
@@ -180,9 +184,7 @@ def _plot_season(show, season, fig, ax, save = False):
     ax.set_xticks(range(1, len(xlabels) + 1))
     ax.set_xticklabels(xlabels, rotation=90)
 
-    if save:
-        path = "../img/season/single/" + show.slug + "-season-" + str(season.number)
-        plt.savefig(path, bbox_inches="tight")
+    if save: _savefig(show.slug + "-season-" + str(season.number))
 
 
 def _format_compare_title(show1, show2):
@@ -246,8 +248,8 @@ def plot_two_shows(show1, show2):
     _plot(show2, fig, ax2, False)
     plt.tight_layout()
     plt.subplots_adjust(top=0.85)
-    path = "../img/compare/{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
-    plt.savefig(path, bbox_inches="tight")
+    fname = "{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
+    _savefig(fname)
     logging.info("Done!")
 
 def _format_compare_season_title(show1, season1, show2, season2):
@@ -276,12 +278,12 @@ def plot_two_seasons(show1, season1, show2, season2):
     _plot_season(show2, season2, fig, ax2, False)
     plt.tight_layout()
     plt.subplots_adjust(top=0.85)
-    path = "../img/season/compare/{show1}-season-{season1}--VS--{show2}-season-{season2}".format(
+    fname = "{show1}-season-{season1}--VS--{show2}-season-{season2}".format(
         show1=show1.slug,
         season1=season1.number,
         show2=show2.slug,
         season2=season2.number)
-    plt.savefig(path, bbox_inches="tight")
+    _savefig(fname)
     logging.info("Done!")
 
 

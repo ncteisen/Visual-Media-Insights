@@ -7,11 +7,12 @@ from db.pickler import Pickler
 
 from net.net import Net
 
+_PICKLE_DATA_DIR = "../data/pickles/"
+
 class DbClient:
 	def __init__(self):
 		self.net = Net()
-		# TODO(ncteisen): clean up dir pattern
-		self.pickler = Pickler("db/pickles/")
+		self.pickler = Pickler(_PICKLE_DATA_DIR)
 
 	def get_show(self, title):
 		logging.info("Getting show %s..." % title)
@@ -27,6 +28,7 @@ class DbClient:
 		logging.info("Done scraping data for show %s!" % show_metadata.title)
 		self.pickler.put(show)
 		return show
+
 
 # module testing only
 if __name__ == "__main__":
