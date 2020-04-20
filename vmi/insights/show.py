@@ -64,25 +64,24 @@ if __name__ == "__main__":
 		score=worst.score))
 	print("")
 
-	if (len(sys.argv)) > 2:
-		print("//////////////////////   Seasons Summary   //////////////////////")
-		for season in show.season_list:
-			insights = SeasonInsights(season)
-			print("Season %s" % season.number)
-			print("  slope: {slope_percent:.1f}%".format(
-				slope_percent=insights.slope * 100))
-			print("  avg episode rating: {avg_episode_rating:.2f}/10".format(
-				avg_episode_rating=insights.avg_episode_rating))
-			best = insights.best_episode
-			print("  best:  ({number}/{episode_count}) {title} ({score}/10)".format(
-				number=best.number,
-				episode_count=season.episode_count,
-				title=best.title,
-				score=best.score))
-			worst = insights.worst_episode
-			print("  worst: ({number}/{episode_count}) {title} ({score}/10)".format(
-				number=worst.number,
-				episode_count=season.episode_count,
-				title=worst.title,
-				score=worst.score))
-			print("")
+	print("//////////////////////   Seasons Summary   //////////////////////")
+	for season in show.season_list:
+		insights = SeasonInsights(season)
+		print("Season %s" % season.number)
+		print("  slope: {slope_percent:.1f}%".format(
+			slope_percent=insights.slope * 100))
+		print("  avg episode rating: {avg_episode_rating:.2f}/10".format(
+			avg_episode_rating=insights.avg_episode_rating))
+		best = insights.best_episode
+		print("  best:  ({number}/{episode_count}) {title} ({score}/10)".format(
+			number=best.number,
+			episode_count=season.episode_count,
+			title=best.title,
+			score=best.score))
+		worst = insights.worst_episode
+		print("  worst: ({number}/{episode_count}) {title} ({score}/10)".format(
+			number=worst.number,
+			episode_count=season.episode_count,
+			title=worst.title,
+			score=worst.score))
+		print("")
