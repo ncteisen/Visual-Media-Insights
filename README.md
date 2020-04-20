@@ -45,6 +45,8 @@ python -m plot.graph "The Wire"
 
 **Note:** all commands must be run from the `vmi/` directory.
 
+**Note:** all output images end up in the output directory.
+
 ### Graphs
 
 Creating a graph for a single show
@@ -116,3 +118,13 @@ python3 -m plot.cloud "Show name" SEASON_NUM
 python3 -m plot.cloud "The Wire" 1
 ```
 
+### Text Based Insights
+
+Viewing insights for a show
+
+```python
+python3 -m insights.show "Show name"
+
+# For example
+python3 -m insights.show "The Wire"
+```
