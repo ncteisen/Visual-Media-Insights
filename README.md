@@ -2,7 +2,15 @@
 
 This repo provides insights on visual media like shows and movies. For example, it can create graphs like this:
 
-![Example Graph](readme/game-of-thrones-example-graph.png)
+![Example Graph](examples/game-of-thrones-example-graph.png)
+
+And comaprisons like this:
+
+![Example Comparison](examples/the-wire--VS--breaking-bad-example-graph.png)
+
+Also it can make word clouds from a show's best and worst episodes IMDB reviews.
+
+![Example Comparison](examples/breaking-bad-example-cloud.png)
 
 ## Setup
 
