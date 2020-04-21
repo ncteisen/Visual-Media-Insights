@@ -65,6 +65,7 @@ class DbClient:
 		movie_list = []
 		for movie_metadata in director_metadata.movie_metadata_list:
 			movie_list.append(self._get_movie(movie_metadata))
+		movie_list.reverse()
 		return Director(director_metadata, movie_list)
 
 
