@@ -14,17 +14,17 @@ class DirectorInsights:
 		self.director = director
 
 	@property
-	def worst_movie(self):
+	def worst_rated_movie(self):
 		return min(self.director.movie_list, key=lambda m : m.rating)
 
 	@property
-	def best_movie(self):
+	def best_rated_movie(self):
 		return max(self.director.movie_list, key=lambda m : m.rating)
 
 	@property
 	def avg_movie_rating(self):
 		return statistics.mean([m.rating for m in self.director.movie_list])
-	
+
 
 if __name__ == "__main__":
 
@@ -40,14 +40,16 @@ if __name__ == "__main__":
 	print("Director: %s" % director.name)
 	print("  avg movie rating: {avg_movie_rating:.2f}/10".format(
 		avg_movie_rating=insights.avg_movie_rating))
-	best = insights.best_movie
-	print("  best:  {title} ({rating}/10)".format(
-		title=best.title,
-		rating=best.rating))
-	worst = insights.worst_movie
-	print("  worst: {title} ({rating}/10)".format(
-		title=worst.title,
-		rating=worst.rating))
+	best_movie = insights.best_rated_movie
+	print("  best rated:  {title} ({rating}/10)".format(
+		title=best_movie.title,
+		rating=best_movie.rating))
+	worst_movie = insights.worst_rated_movie
+	print("  worst rated: {title} ({rating}/10)".format(
+		title=worst_movie.title,
+		rating=worst_movie.rating))
+	print("  avg movie rating: {avg_movie_rating:.2f}/10".format(
+		avg_movie_rating=insights.avg_movie_rating))
 	print("")
 
 	print("//////////////////////   Movie Summary   //////////////////////")
