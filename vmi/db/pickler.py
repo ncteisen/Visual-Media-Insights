@@ -8,13 +8,13 @@ class Pickler:
 		self.dbpath = dbpath
 
 	def has(self, show):
-		return os.path.isfile(self.dbpath + show.slug)
+		return os.path.isfile(self.dbpath + show.imdb_id)
 
 	def get(self, show):
-		return pickle.load(open(self.dbpath + show.slug, "rb" ))
+		return pickle.load(open(self.dbpath + show.imdb_id, "rb" ))
 
 	def put(self, show):
-		pickle.dump(show, open(self.dbpath + show.slug, "wb" ))
+		pickle.dump(show, open(self.dbpath + show.imdb_id, "wb" ))
 
 
 # module testing only

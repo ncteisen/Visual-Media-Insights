@@ -5,9 +5,11 @@ from bs4 import BeautifulSoup as Soup
 
 from model.show import ShowMetadata
 
-_BASE_IMDB_URL = "https://www.imdb.com/title/{imdb_id}/episodes?season={season}"
+_BASE_IMDB_SHOW_URL = "https://www.imdb.com/title/{imdb_id}/episodes?season={season}"
+_BASE_IMDB_DIRECTOR_URL_ = "https://www.imdb.com/name/{imdb_id}"
 _BASE_IMDB_EPISODE_REVIEW_URL = "https://www.imdb.com/title/{imdb_id}/reviews"
 
+# All this info can be retrieved from the episode list page on IMDB.
 class ImdbEpisodeData:
 	def __init__(self):
 		self.index = None
@@ -33,6 +35,18 @@ class ImdbReviewData:
 class ImdbEpisodeReviewsData:
 	def __init__(self):
 		self.review_list = []
+
+# This information can be found in the movie list under a director page on IMDB.
+class ImdbMovieMetadata:
+	def __init__(self):
+		self.name = None
+		self.imdb_id = None
+		self.year = None
+
+class ImdbDirectorData:
+	def __init__(self):
+		self.name = None
+		self.movie_metadata_list = []
 
 class ImdbScraper:
 	def __init__(self):
@@ -75,7 +89,7 @@ class ImdbScraper:
 	def _scrape_season(self, show_metadata, season_number):
 		season_data = ImdbSeasonData()
 
-		season_url = _BASE_IMDB_URL.format(imdb_id=show_metadata.imdb_id, season=season_number)
+		season_url = _BASE_IMDB_SHOW_URL.format(imdb_id=show_metadata.imdb_id, season=season_number)
 		content = requests.get(season_url)
 		soup = Soup(content.text, features="html.parser")
 
@@ -84,6 +98,7 @@ class ImdbScraper:
 			if (episode_data):
 				season_data.episode_list.append(episode_data)
 		return season_data
+
 
 	# Fetch episode info for a given show metadata from IMDB.
 	def scrape_show(self, show_metadata):
@@ -107,10 +122,43 @@ class ImdbScraper:
 		content = requests.get(episode_reviews_url)
 		soup = Soup(content.text, features="html.parser")
 		review_data = ImdbEpisodeReviewsData()
-		counter = 0
 		for div in soup.find_all('div', {'class': 'imdb-user-review'}):
 			review_data.review_list.append(self._scrape_one_review(div))
 		return review_data
+
+
+	def _scrape_movie_metadata(self, div):
+		# Title is the hyperlink
+		title = div.find('a').text
+		year = div.find('span', {'class': 'year_column'}).text
+		# Non feature films have more info after the title. We filter on that.
+		post = div.find('b').next_sibling
+		if not post.isspace():
+			return None
+		
+		movie_metadata = ImdbMovieMetadata()
+		movie_metadata.title = title
+		movie_metadata.imdb_id = div['id'][len("director-"):]
+		movie_metadata.year = int(year.strip().split('/')[0])
+		return movie_metadata
+
+
+	def scrape_director(self, imdb_id):
+		director_url = _BASE_IMDB_DIRECTOR_URL_.format(imdb_id=imdb_id)
+		content = requests.get(director_url)
+		soup = Soup(content.text, features="html.parser")
+		director_data = ImdbDirectorData()
+		name_overview_div = soup.find('div', {'class': 'name-overview-widget'})
+		name_div = name_overview_div.find('span', {'class': 'itemprop'})
+		director_data.name = name_div.text
+		for div in soup.find_all('div', {'class': 'filmo-row'}):
+			if (div['id'].startswith('director')):
+				movie_metadata = self._scrape_movie_metadata(div)
+				if (movie_metadata):
+					director_data.movie_metadata_list.append(movie_metadata)
+		return director_data
+
+
 
 
 
@@ -118,5 +166,6 @@ class ImdbScraper:
 if __name__ == "__main__":
 	# print("Usage: python -m net.imdb")
 	scraper = ImdbScraper()
-	reviews = scraper.scrape_top_reviews("tt2178784")
-	print(reviews)
+	# director = scraper.scrape_director("nm0000217")
+	director = scraper.scrape_director("nm0000233")
+	print(director.name, len(director.movie_metadata_list))

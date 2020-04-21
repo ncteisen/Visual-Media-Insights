@@ -2,7 +2,9 @@ import sys
 
 from slugify import slugify
 
+from model.director import DirectorMetadata
 from model.episode import Episode
+from model.movie import Movie, MovieMetadata
 from model.review import Review
 from model.season import Season
 from model.show import Show, ShowMetadata
@@ -16,13 +18,13 @@ class Net:
 
 	# Based on title, attempts to read and parse show metadata.
 	def get_show_metadata(self, title):
-		omdb_show_data = self.omdb.get_show_data(title)
+		omdb_show_metadata = self.omdb.get_show_metadata(title)
 		return ShowMetadata(
-			omdb_show_data.title,
-			slugify(omdb_show_data.title), 
-			omdb_show_data.imdb_rating, 
-			omdb_show_data.imdb_id,
-			omdb_show_data.season_count)
+			title=omdb_show_metadata.title,
+			slug=slugify(omdb_show_metadata.title), 
+			rating=omdb_show_metadata.imdb_rating, 
+			imdb_id=omdb_show_metadata.imdb_id,
+			season_count=omdb_show_metadata.season_count)
 
 	# Based on title, attempts to read and parse all episode info about a
 	# particular show. Raises an system exist if we encounter any errors.
@@ -33,12 +35,12 @@ class Net:
 			episode_list = []
 			for episode in season.episode_list:
 				episode_list.append(Episode(
-					episode.index, 
-					episode.season, 
-					episode.number, 
-					episode.title, 
-					episode.score,
-					episode.imdb_id))
+					index=episode.index, 
+					season=episode.season, 
+					number=episode.number, 
+					title=episode.title, 
+					score=episode.score,
+					imdb_id=episode.imdb_id))
 			season_list.append(Season(i + 1, episode_list))
 		show = Show(show_metadata, season_list)
 		return show
@@ -51,7 +53,28 @@ class Net:
 			review_list.append(Review(review.title, review.body))
 		return review_list
 
+	def get_director_metadata(self, imdb_id):
+		director_data = self.imdb.scrape_director(imdb_id)
+		movie_metadata_list = []
+		for movie_metadata in director_data.movie_metadata_list:
+			movie_metadata_list.append(MovieMetadata(
+				imdb_id=movie_metadata.imdb_id,
+				title=movie_metadata.title))
+		return DirectorMetadata(
+			imdb_id=imdb_id,
+			name=director_data.name,
+			slug=slugify(director_data.name),
+			movie_metadata_list=movie_metadata_list)
 
+	def get_movie(self, movie_metadata):
+		omdb_movie_data = self.omdb.get_movie_data(movie_metadata)
+		return Movie(
+			imdb_id=omdb_movie_data.imdb_id,
+			title=omdb_movie_data.title,
+			slug=slugify(omdb_movie_data.title),
+			year=omdb_movie_data.year,
+			rating=omdb_movie_data.imdb_rating,
+			boxoffice=omdb_movie_data.box_office)
 
 
 # module testing only
@@ -61,6 +84,7 @@ if __name__ == "__main__":
 		raise SystemExit(1)
 
 	net = Net()
-	show_metadata = net.get_show_metadata(sys.argv[1])
-	show = net.get_show(show_metadata)
-	print(show.season_list[0].episode_list[0].imdb_id)
+	director = net.get_director_metadata(sys.argv[1])
+	for movie_metadata in director.movie_metadata_list:
+		movie = net.get_movie(movie_metadata)
+		print(movie)

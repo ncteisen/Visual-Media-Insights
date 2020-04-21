@@ -3,14 +3,23 @@ import json
 import sys
 import os
 
-_BASE_OMDB_URL = "http://www.omdbapi.com/?t={title}&type=series&apikey={api_key}"
+_BASE_SERIES_OMDB_URL = "http://www.omdbapi.com/?t={title}&type=series&apikey={api_key}"
+_BASE_MOVIE_OMDB_URL = "http://www.omdbapi.com/?i={imdb_id}&type=series&apikey={api_key}"
 
 class OmdbShowData:
 	def __init__(self):
-		self.season_count = 0
-		self.imdb_id = ""
-		self.imdb_rating = 0
-		self.title = ""
+		self.season_count = None
+		self.imdb_id = None
+		self.imdb_rating = None
+		self.title = None
+
+class OmdbMovieData:
+	def __init__(self):
+		self.imdb_id = None
+		self.title = None
+		self.year = None
+		self.imdb_rating = None
+		self.box_office = None
 
 class OmdbApiClient:
 	def __init__(self):
@@ -22,8 +31,8 @@ class OmdbApiClient:
 
 	# Fetch info for a show from OMDB. Raise error if response does not
 	# come back.
-	def _get_show_data_json(self, title):
-		response = requests.request("GET", _BASE_OMDB_URL.format(
+	def _get_show_metadata_json(self, title):
+		response = requests.request("GET", _BASE_SERIES_OMDB_URL.format(
 			title=title,
 			api_key=self.apikey))
 
@@ -42,13 +51,49 @@ class OmdbApiClient:
 
 		return show_json
 
-	def get_show_data(self, title):
-		show_info_json = self._get_show_data_json(title)
+
+	def get_show_metadata(self, title):
+		show_info_json = self._get_show_metadata_json(title)
 		data = OmdbShowData()
 		data.season_count = int(show_info_json["totalSeasons"])
 		data.imdb_id = show_info_json["imdbID"]
 		data.imdb_rating = show_info_json["imdbRating"]
 		data.title = show_info_json["Title"]
+		return data
+
+
+	# Fetch info for a movie from OMDB. Raise error if response does not
+	# come back.
+	def _get_movie_data_json(self, imdb_id):
+		response = requests.request("GET", _BASE_MOVIE_OMDB_URL.format(
+			imdb_id=imdb_id,
+			api_key=self.apikey))
+
+		if not response.text:
+			print("Error getting info for movie '{imdb_id}'".format(imdb_id=imdb_id))
+			raise SystemExit(1)
+
+		movie_json = json.loads(response.text)
+
+		# quick error check for sanity
+		if movie_json["Response"] == "False":
+			print("Error getting info for movie '{imdb_id}': {error}".format(
+				imdb_id=imdb_id,
+				error=movie_json["Error"]))
+			raise SystemExit(1)
+
+		return movie_json
+
+
+	def get_movie_data(self, movie_metadata):
+		movie_info_json = self._get_movie_data_json(movie_metadata.imdb_id)
+		data = OmdbMovieData()
+		data.imdb_id = movie_metadata.imdb_id
+		data.title = movie_info_json["Title"]
+		data.year = movie_info_json["Year"]
+		data.imdb_rating = float(movie_info_json["imdbRating"])
+		if movie_info_json["BoxOffice"] != 'N/A':
+			data.box_office = int(movie_info_json["BoxOffice"].replace("$", "").replace(",", ""))
 		return data
 
 
@@ -59,7 +104,7 @@ if __name__ == "__main__":
 		raise SystemExit(1)
 
 	scraper = OmdbApiClient()
-	# show_json = scraper.get_show_data(sys.argv[1])
-	# print json.dumps(show_json, indent=2)
-	handle = scraper.get_show_data(sys.argv[1])
-	print(handle)
+	data = scraper.get_movie_data(sys.argv[1])
+	print(data.imdb_rating)
+	print(data.metascore)
+	print(data.box_office)
