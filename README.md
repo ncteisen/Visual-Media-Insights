@@ -12,6 +12,10 @@ Also it can make word clouds from a show's best and worst episodes IMDB reviews.
 
 ![Example Comparison](examples/breaking-bad-example-cloud.png)
 
+Lastly, it can plot all movies from a particular director's oeuvre.
+
+![Example Comparison](examples/martin-scorsese-example-graph.png)
+
 ## Setup
 
 This repository uses Python 3.7. Ensure you have that installed before
@@ -127,4 +131,15 @@ python3 -m insights.show "Show name"
 
 # For example
 python3 -m insights.show "The Wire"
+```
+
+### Director graphs
+
+Viewing insights for a particular director
+
+```python
+python3 -m plot.director "director IMDB id"
+
+# For example
+python3 -m plot.director nm0000217
 ```
