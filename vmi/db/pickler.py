@@ -1,10 +1,14 @@
 import os
 import pickle
 
+from pathlib import Path
+
 from model.show import Show, ShowMetadata
 
 class Pickler:
 	def __init__(self, dbpath):
+		# ensure this directory exists.
+		Path(dbpath).mkdir(parents=True, exist_ok=True)
 		self.dbpath = dbpath
 
 	def has(self, show):
