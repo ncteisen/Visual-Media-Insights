@@ -25,7 +25,11 @@ class OmdbApiClient:
 	def __init__(self):
 		apikey = os.getenv("OMDB_API_KEY")
 		if not apikey:
-			print("Must set env variable OMDB_API_KEY")
+			print("""Must set env variable OMDB_API_KEY!
+
+Go to http://www.omdbapi.com/apikey.aspx to get a free API key. Then set it:
+$ export OMDB_API_KEY=<YOUR_KEY>
+""")
 			raise SystemExit(1)
 		self.apikey = apikey
 

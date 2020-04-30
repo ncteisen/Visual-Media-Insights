@@ -14,13 +14,8 @@ from model.episode import Episode
 from model.season import Season
 from model.show import Show
 from net.net import Net
+from plot.common import Constants, Formatters, Saver
 from util.logger import LoggerConfig
-
-_FOREGROUND = 'white'
-
-_TITLE_SIZE = 20
-_SUBTITLE_SIZE = _TITLE_SIZE - 4
-_LABEL_SIZE = _SUBTITLE_SIZE - 3
 
 _CUSTOM_STOPWORDS = ["show", "book", "series", "season", "character",
     "episode", "story", "seasons", "episodes", "characters",
@@ -29,10 +24,6 @@ _CUSTOM_STOPWORDS = ["show", "book", "series", "season", "character",
 _ALL_STOPWORDS = list(STOPWORDS) + _CUSTOM_STOPWORDS
 
 _CLOUD_OUTPUT_DIR = "../output/clouds/"
-
-def _savefig(fname):
-    path = _CLOUD_OUTPUT_DIR + fname
-    plt.savefig(path, bbox_inches="tight")
 
 def _get_corpus(review_list):
     corpus = []
@@ -46,26 +37,9 @@ def _get_wordcloud(review_list, extra_stopwords):
     logging.info("Creating wordcloud...")
     corpus = _get_corpus(review_list)
     return WordCloud(width=1000, height=1000, 
-                    background_color=_FOREGROUND, 
+                    background_color=Constants.FOREGROUND, 
                     stopwords=set(_ALL_STOPWORDS + extra_stopwords), 
-                    min_font_size=_LABEL_SIZE).generate(" ".join(corpus))
-
-
-def _format_show_title(show):
-    return "{title} - ({rating}/10)".format(
-        title=show.title, rating=show.rating)
-
-
-def _format_episode_title(episode):
-    return "{label} - ({rating}/10)".format(
-        title=show.title, rating=show.rating)
-
-
-def _format_episode_title(episode):
-    return "{label} - {title} ({score}/10)".format(
-        label=episode.label,
-        title=unidecode.unidecode(episode.title),
-        score=episode.score)
+                    min_font_size=Constants.LABEL_SIZE).generate(" ".join(corpus))
 
 
 def make_wordcloud_plot(show, title, best, worst, fname):
@@ -79,28 +53,21 @@ def make_wordcloud_plot(show, title, best, worst, fname):
 
     logging.info("Plotting...")
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(20, 12), facecolor=None)
-    st = fig.suptitle(title, fontsize=_TITLE_SIZE)
+    st = fig.suptitle(title, fontsize=Constants.TITLE_SIZE)
     st.set_y(0.97)
                      
-    ax1.set_title(_format_episode_title(best), fontsize=_SUBTITLE_SIZE)
+    ax1.set_title(Formatters.format_episode_title(best), fontsize=Constants.SUBTITLE_SIZE)
     ax1.imshow(best_wordcloud) 
     ax1.axis("off") 
 
-    ax2.set_title(_format_episode_title(worst), fontsize=_SUBTITLE_SIZE)
+    ax2.set_title(Formatters.format_episode_title(worst), fontsize=Constants.SUBTITLE_SIZE)
     ax2.imshow(worst_wordcloud) 
     ax2.axis("off") 
 
     plt.subplots_adjust(top=0.85)
     plt.tight_layout(pad=0) 
-    _savefig(fname)
+    Saver.savefig(_CLOUD_OUTPUT_DIR, fname)
     logging.info("Done!")
-
-
-def _format_season_title(show, season, insights):
-    return "{title}, season {number} ({rating:.2f}/10)".format(
-        title=show.title, 
-        number=season.number, 
-        rating=insights.avg_episode_rating)
 
 
 if __name__ == "__main__":
@@ -120,7 +87,7 @@ if __name__ == "__main__":
     if (argc == 2):
         # one show
         insights = ShowInsights(show)
-        title = _format_show_title(show)
+        title = Formatters.format_show_title(show)
         best = insights.best_episode
         worst = insights.worst_episode
         fname = show.slug
@@ -128,7 +95,7 @@ if __name__ == "__main__":
         # one season
         season = show.season_list[int(sys.argv[2]) - 1]
         insights = SeasonInsights(season)
-        title = _format_season_title(show, season, insights)
+        title = Formatters.format_season_title(show, season, insights)
         best = insights.best_episode
         worst = insights.worst_episode
         fname = show.slug + "-season-" + str(season.number)
