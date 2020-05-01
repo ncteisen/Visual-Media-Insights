@@ -4,12 +4,12 @@ import sys
 
 from scipy.stats import linregress
 
-from insights.season import SeasonInsights
-from model.episode import Episode
-from model.season import Season
-from model.show import Show
-from db.db import DbClient
-from util.logger import LoggerConfig
+from vmi.insights.season import SeasonInsights
+from vmi.model.episode import Episode
+from vmi.model.season import Season
+from vmi.model.show import Show
+from vmi.db.db import DbClient
+from vmi.util.logger import LoggerConfig
 
 class ShowInsights:
 	def __init__(self, show):

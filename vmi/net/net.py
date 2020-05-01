@@ -2,14 +2,14 @@ import sys
 
 from slugify import slugify
 
-from model.director import DirectorMetadata
-from model.episode import Episode
-from model.movie import Movie, MovieMetadata
-from model.review import Review
-from model.season import Season
-from model.show import Show, ShowMetadata
-from net.omdb import OmdbApiClient, OmdbShowData
-from net.imdb import ImdbScraper
+from vmi.model.director import DirectorMetadata
+from vmi.model.episode import Episode
+from vmi.model.movie import Movie, MovieMetadata
+from vmi.model.review import Review
+from vmi.model.season import Season
+from vmi.model.show import Show, ShowMetadata
+from vmi.net.omdb import OmdbApiClient, OmdbShowData
+from vmi.net.imdb import ImdbScraper
 
 class Net:
 	def __init__(self):

@@ -4,10 +4,10 @@ import sys
 
 from scipy.stats import linregress
 
-from model.director import Director
-from model.movie import Movie
-from db.db import DbClient
-from util.logger import LoggerConfig
+from vmi.model.director import Director
+from vmi.model.movie import Movie
+from vmi.db.db import DbClient
+from vmi.util.logger import LoggerConfig
 
 class DirectorInsights:
 	def __init__(self, director):

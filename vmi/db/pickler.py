@@ -3,7 +3,7 @@ import pickle
 
 from pathlib import Path
 
-from model.show import Show, ShowMetadata
+from vmi.model.show import Show, ShowMetadata
 
 class Pickler:
 	def __init__(self, dbpath):
@@ -24,7 +24,7 @@ class Pickler:
 # module testing only
 if __name__ == "__main__":
 	pickler = Pickler("/tmp/pickles/")
-	show = ShowMetadata("Arrested Development", "arrested-development", 8.7, 3)
+	show = ShowMetadata("Arrested Development", "arrested-development", 8.7, "tt123456", 3)
 	assert(not pickler.has(show))
 	pickler.put(show)
 	assert(pickler.has(show))

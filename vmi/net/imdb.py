@@ -3,7 +3,7 @@ import sys
 import logging
 from bs4 import BeautifulSoup as Soup
 
-from model.show import ShowMetadata
+from vmi.model.show import ShowMetadata
 
 _BASE_IMDB_SHOW_URL = "https://www.imdb.com/title/{imdb_id}/episodes?season={season}"
 _BASE_IMDB_DIRECTOR_URL_ = "https://www.imdb.com/name/{imdb_id}"

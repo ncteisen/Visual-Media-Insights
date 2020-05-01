@@ -3,10 +3,10 @@ import pickle
 import sys
 import logging
 
-from db.pickler import Pickler
-from model.director import Director
-from net.net import Net
-from util.logger import LoggerConfig
+from vmi.db.pickler import Pickler
+from vmi.model.director import Director
+from vmi.net.net import Net
+from vmi.util.logger import LoggerConfig
 
 _PICKLE_DATA_DIR = "../data/pickles/"
 

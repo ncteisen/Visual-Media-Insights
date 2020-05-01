@@ -7,10 +7,10 @@ import numpy as np
 
 from scipy import interpolate
 
-from db.db import DbClient
-from insights.director import DirectorInsights
-from plot.common import Constants, Saver
-from util.logger import LoggerConfig
+from vmi.db.db import DbClient
+from vmi.insights.director import DirectorInsights
+from vmi.plot.common import Constants, Saver
+from vmi.util.logger import LoggerConfig
 
 _MAX_XLABEL_LEN = 10
 _GRAPH_OUTPUT_DIR = "../output/directors/"

@@ -7,11 +7,11 @@ import numpy as np
 
 from scipy import interpolate
 
-from db.db import DbClient
-from insights.show import ShowInsights
-from insights.season import SeasonInsights
-from plot.common import Constants, Formatters, Saver
-from util.logger import LoggerConfig
+from vmi.db.db import DbClient
+from vmi.insights.show import ShowInsights
+from vmi.insights.season import SeasonInsights
+from vmi.plot.common import Constants, Formatters, Saver
+from vmi.util.logger import LoggerConfig
 
 _GRAPH_OUTPUT_DIR = "../output/graphs/"
 
