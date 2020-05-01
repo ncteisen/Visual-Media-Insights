@@ -13,8 +13,6 @@ from vmi.insights.season import SeasonInsights
 from vmi.plot.common import Constants, Formatters, Saver
 from vmi.util.logger import LoggerConfig
 
-_GRAPH_OUTPUT_DIR = "../output/graphs/"
-
 def _subplot_args(episode_count):
     return {
         # TODO(ncteisen): support dynamic height
@@ -102,7 +100,7 @@ def _plot(show, fig, ax, save = False):
     ax.set_xticks(range(1, len(xlabels) + 1))
     ax.set_xticklabels(xlabels, rotation=90)
 
-    if save: Saver.savefig(_GRAPH_OUTPUT_DIR, show.slug)
+    if save: Saver.savefig(Constants.GRAPH_OUTPUT_DIR, show.slug)
 
 def _plot_season(show, season, fig, ax, save = False):
 
@@ -136,7 +134,7 @@ def _plot_season(show, season, fig, ax, save = False):
     ax.set_xticks(range(1, len(xlabels) + 1))
     ax.set_xticklabels(xlabels, rotation=90)
 
-    if save: Saver.savefig(_GRAPH_OUTPUT_DIR, show.slug + "-season-" + str(season.number))
+    if save: Saver.savefig(Constants.GRAPH_OUTPUT_DIR, show.slug + "-season-" + str(season.number))
 
 
 def _format_compare_title(show1, show2):
@@ -197,7 +195,7 @@ def plot_two_shows(show1, show2):
     plt.tight_layout()
     plt.subplots_adjust(top=0.85)
     fname = "{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
-    Saver.savefig(_GRAPH_OUTPUT_DIR, fname)
+    Saver.savefig(Constants.GRAPH_OUTPUT_DIR, fname)
     logging.info("Done!")
 
 def _format_compare_season_title(show1, season1, show2, season2):
@@ -231,7 +229,7 @@ def plot_two_seasons(show1, season1, show2, season2):
         season1=season1.number,
         show2=show2.slug,
         season2=season2.number)
-    Saver.savefig(_GRAPH_OUTPUT_DIR, fname)
+    Saver.savefig(Constants.GRAPH_OUTPUT_DIR, fname)
     logging.info("Done!")
 
 

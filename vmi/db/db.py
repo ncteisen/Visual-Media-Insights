@@ -8,7 +8,7 @@ from vmi.model.director import Director
 from vmi.net.net import Net
 from vmi.util.logger import LoggerConfig
 
-_PICKLE_DATA_DIR = "../data/pickles/"
+_PICKLE_DATA_DIR = "data/pickles/"
 
 class FakeDirectorMetadata:
 	def __init__(self):

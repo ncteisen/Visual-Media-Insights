@@ -23,8 +23,6 @@ _CUSTOM_STOPWORDS = ["show", "book", "series", "season", "character",
 
 _ALL_STOPWORDS = list(STOPWORDS) + _CUSTOM_STOPWORDS
 
-_CLOUD_OUTPUT_DIR = "../output/clouds/"
-
 def _get_corpus(review_list):
     corpus = []
     for review in review_list:
@@ -66,7 +64,7 @@ def make_wordcloud_plot(show, title, best, worst, fname):
 
     plt.subplots_adjust(top=0.85)
     plt.tight_layout(pad=0) 
-    Saver.savefig(_CLOUD_OUTPUT_DIR, fname)
+    Saver.savefig(Constants.CLOUD_OUTPUT_DIR, fname)
     logging.info("Done!")
 
 

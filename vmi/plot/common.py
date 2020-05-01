@@ -37,6 +37,10 @@ class Constants:
         '#000075',
     ]
 
+    CLOUD_OUTPUT_DIR = "output/clouds/"
+    GRAPH_OUTPUT_DIR = "output/graphs/"
+    DIRECTOR_OUTPUT_DIR = "output/directors/"
+
 
 class Formatters:
     @staticmethod

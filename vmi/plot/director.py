@@ -13,7 +13,6 @@ from vmi.plot.common import Constants, Saver
 from vmi.util.logger import LoggerConfig
 
 _MAX_XLABEL_LEN = 10
-_GRAPH_OUTPUT_DIR = "../output/directors/"
 
 def _subplot_args(episode_count):
     return {
@@ -87,7 +86,7 @@ def _plot(director, fig, ax, save = False):
     insights = DirectorInsights(director)
     _format_footnote_movies(ax, insights)
 
-    if save: Saver.savefig(_GRAPH_OUTPUT_DIR, director.slug)
+    if save: Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug)
 
 
 def _format_movie_title(movie):
