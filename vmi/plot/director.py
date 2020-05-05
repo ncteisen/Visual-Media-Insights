@@ -63,7 +63,7 @@ def _plot(director, fig, ax, save = False):
     gy.extend(y)
 
     # Plots the interpolation of season.episode_list for each season.
-    if (len(director.movie_list) > 3):
+    if (len(director.movie_list) > Constants.SPLINE_K):
         sp_x = np.linspace(0, len(director.movie_list) - 1, len(director.movie_list) * 10)
         sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
         ax.plot(sp_x, sp_y)
