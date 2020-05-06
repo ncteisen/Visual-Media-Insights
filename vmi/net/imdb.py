@@ -1,13 +1,17 @@
 import requests
 import sys
 import logging
+
 from bs4 import BeautifulSoup as Soup
+from decimal import Decimal
+from re import sub
 
 from vmi.model.show import ShowMetadata
 
 _BASE_IMDB_SHOW_URL = "https://www.imdb.com/title/{imdb_id}/episodes?season={season}"
 _BASE_IMDB_DIRECTOR_URL_ = "https://www.imdb.com/name/{imdb_id}"
 _BASE_IMDB_EPISODE_REVIEW_URL = "https://www.imdb.com/title/{imdb_id}/reviews"
+_BASE_IMDB_MOVIE_URL = "https://www.imdb.com/title/{imdb_id}"
 
 # All this info can be retrieved from the episode list page on IMDB.
 class ImdbEpisodeData:
@@ -47,6 +51,15 @@ class ImdbDirectorData:
 	def __init__(self):
 		self.name = None
 		self.movie_metadata_list = []
+
+class ImdbMovieData:
+	def __init__(self):
+		self.budget = None
+		self.opening_weekend = None
+		self.us_boxoffice = None
+		self.worldwide_boxoffice = None
+		self.runtime = None
+		self.genre_list = []
 
 class ImdbScraper:
 	def __init__(self):
@@ -159,6 +172,55 @@ class ImdbScraper:
 		return director_data
 
 
+	def _parse_num(self, money):
+		return Decimal(sub(r'[^\d.]', '', money))
+
+
+	def scrape_movie(self, imdb_id):
+		movie_url = _BASE_IMDB_MOVIE_URL.format(imdb_id=imdb_id)
+		content = requests.get(movie_url)
+		soup = Soup(content.text, features="html.parser")
+		movie_data = ImdbMovieData()
+
+
+		# scrape box office info
+		iterator = soup.find("h3", string="Box Office")
+		for _ in range(4):
+			iterator = iterator.findNext('div')
+			h4 = iterator.find('h4')
+			if not h4: continue
+			if "Budget" in h4.text:
+				movie_data.budget = self._parse_num(h4.next_sibling)
+			if "Opening Weekend USA" in h4.text:
+				movie_data.opening_weekend = self._parse_num(h4.next_sibling)
+			if "Gross USA" in h4.text:
+				movie_data.us_boxoffice = self._parse_num(h4.next_sibling)
+			if "Cumulative Worldwide Gross" in h4.text:
+				movie_data.worldwide_boxoffice = self._parse_num(h4.next_sibling)
+
+
+		# scrape runtime
+		iterator = soup.find("h3", string="Technical Specs")
+		iterator = iterator.findNext('div')
+		time = iterator.find('time')
+		movie_data.runtime = int(time.text[:-3])
+
+
+		# scrape rating count
+		rating_count_span = soup.find('span', {'itemprop': 'ratingCount'})
+		if (rating_count_span):
+			movie_data.rating_count = self._parse_num(rating_count_span.text)
+
+
+		# scrape genres
+		genre_h4 = soup.find("h4", string="Genres:")
+		genre_span = genre_h4.parent
+		if (genre_span):
+			for a in genre_span.find_all('a'):
+				movie_data.genre_list.append(a.text.strip())
+
+
+		return movie_data
 
 
 
@@ -167,5 +229,5 @@ if __name__ == "__main__":
 	# print("Usage: python -m net.imdb")
 	scraper = ImdbScraper()
 	# director = scraper.scrape_director("nm0000217")
-	director = scraper.scrape_director("nm0000233")
-	print(director.name, len(director.movie_metadata_list))
+	movie_data = scraper.scrape_movie("tt0082910")
+	print (movie_data.runtime)

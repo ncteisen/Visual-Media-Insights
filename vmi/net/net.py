@@ -68,13 +68,19 @@ class Net:
 
 	def get_movie(self, movie_metadata):
 		omdb_movie_data = self.omdb.get_movie_data(movie_metadata)
+		imdb_movie_data = self.imdb.scrape_movie(movie_metadata.imdb_id)
 		return Movie(
 			imdb_id=omdb_movie_data.imdb_id,
 			title=omdb_movie_data.title,
 			slug=slugify(omdb_movie_data.title),
 			year=omdb_movie_data.year,
 			rating=omdb_movie_data.imdb_rating,
-			boxoffice=omdb_movie_data.box_office)
+			budget=imdb_movie_data.budget,
+			opening_weekend=imdb_movie_data.opening_weekend,
+			boxoffice_usa=imdb_movie_data.us_boxoffice,
+			boxoffice_worldwide=imdb_movie_data.worldwide_boxoffice,
+			runtime=imdb_movie_data.runtime,
+			genre_list=imdb_movie_data.genre_list)
 
 
 # module testing only
