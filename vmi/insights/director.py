@@ -25,6 +25,14 @@ class DirectorInsights:
 	def avg_movie_rating(self):
 		return statistics.mean([m.rating for m in self.director.movie_list])
 
+	@property
+	def longest_movie(self):
+		return max(self.director.movie_list, key=lambda m : m.runtime)
+
+	@property
+	def shortest_movie(self):
+		return min(self.director.movie_list, key=lambda m : m.runtime)
+
 
 if __name__ == "__main__":
 

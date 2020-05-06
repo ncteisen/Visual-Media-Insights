@@ -3,6 +3,7 @@ import sys
 import unidecode
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 
 from scipy import interpolate
@@ -49,7 +50,13 @@ def _format_xlabel(title):
         return title[:_MAX_XLABEL_LEN] + "..."
     return title
 
-def _plot(director, fig, ax, save = False):
+
+def _format_ylabel_money(ax):
+    formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
+    ax.yaxis.set_major_formatter(formatter)
+
+
+def _plot_ratings(director, fig, ax, save = False):
 
     xlabels = []
     gx, gy = [], []
@@ -68,16 +75,11 @@ def _plot(director, fig, ax, save = False):
         sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
         ax.plot(sp_x, sp_y)
 
-    # Plots the per season trend
+    # Plots the trend
     z = np.polyfit(x, y, deg=1)
     p = np.poly1d(z)
     ax.scatter(x, y)
     ax.plot(x, p(x), color=Constants.MIDDLEGROUND)
-
-    # Plots the overall show trend.
-    gz = np.polyfit(gx, gy, deg=1)
-    gp = np.poly1d(gz)
-    ax.plot(gx, gp(gx), color=Constants.FOREGROUND)
 
     # Ticks
     ax.set_xticks(range(len(xlabels)))
@@ -86,7 +88,7 @@ def _plot(director, fig, ax, save = False):
     insights = DirectorInsights(director)
     _format_footnote_movies(ax, insights)
 
-    if save: Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug)
+    if save: Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug + "-rating")
 
 
 def _format_movie_title(movie):
@@ -118,12 +120,85 @@ def _format_footnote_movies(ax, insights):
         fontsize=Constants.LABEL_SIZE)
 
 
+def _plot_runtime(director, fig, ax, save = False):
+
+    xlabels = []
+    gx, gy = [], []
+
+    x = range(len(director.movie_list))
+    y = list(map(lambda m: m.runtime, director.movie_list))
+
+    formatter = ticker.FuncFormatter(lambda x, pos: '%d min' % x)
+    ax.yaxis.set_major_formatter(formatter)
+
+    xlabels.extend(map(lambda m: _format_xlabel(m.title), director.movie_list))
+
+    gx.extend(x)
+    gy.extend(y)
+
+    # Plots the interpolation of movies.
+    if (len(director.movie_list) > Constants.SPLINE_K):
+        sp_x = np.linspace(0, len(director.movie_list) - 1, len(director.movie_list) * 10)
+        sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
+        ax.plot(sp_x, sp_y)
+
+    # Ticks
+    ax.set_xticks(range(len(xlabels)))
+    ax.set_xticklabels(xlabels, rotation=65)
+
+    insights = DirectorInsights(director)
+    _format_footnote_movies_runtime(ax, insights)
+
+    if save: Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug + "-runtime")
+
+
+def _format_movie_title_runtime(movie):
+    mins = movie.runtime
+    hours = mins // 60
+    mins = mins - hours * 60
+    return "{title} - {hours} hr {minutes} min".format(
+        title=movie.title, hours=hours, minutes=mins)
+
+
+def _format_longest_rated_movie(movie):
+    return "Longest:  {formatted_title}".format(
+        formatted_title=_format_movie_title_runtime(movie))
+
+
+def _format_shortest_rated_movie(movie):
+    return "Shortest:  {formatted_title}".format(
+        formatted_title=_format_movie_title_runtime(movie))
+
+def _format_footnote_movies_runtime(ax, insights):
+    longest = insights.longest_movie
+    ax.annotate(_format_longest_rated_movie(longest), (0,0), (0, -80), 
+        xycoords='axes fraction', 
+        textcoords='offset points', 
+        va='top', 
+        fontsize=Constants.LABEL_SIZE)
+    shortest = insights.shortest_movie
+    ax.annotate(_format_shortest_rated_movie(shortest), (0,0), (0, -100), 
+        xycoords='axes fraction', 
+        textcoords='offset points', 
+        va='top', 
+        fontsize=Constants.LABEL_SIZE)
+
+
 def plot_one_director(director):
     logging.info("Plotting movies for %s..." % director.name)
     fig, ax = plt.subplots(**_subplot_args(len(director.movie_list)))
     ax.set_ylabel("movie rating", fontsize=Constants.LABEL_SIZE)
     _setup(director, fig, ax)
-    _plot(director, fig, ax, True)
+    _plot_ratings(director, fig, ax, True)
+    logging.info("Done!")
+
+
+def plot_one_director_runtime(director):
+    logging.info("Plotting movies for %s..." % director.name)
+    fig, ax = plt.subplots(**_subplot_args(len(director.movie_list)))
+    ax.set_ylabel("movie runtime", fontsize=Constants.LABEL_SIZE)
+    _setup(director, fig, ax)
+    _plot_runtime(director, fig, ax, True)
     logging.info("Done!")
 
 
@@ -135,12 +210,16 @@ if __name__ == "__main__":
 
 
     argc = len(sys.argv)
-    if (argc < 2):
+    if argc < 2:
         print("Usage: python -m plot.graph <DIRECTOR ID>")
         raise SystemExit(1)
 
-    show1 = dbclient.get_director(sys.argv[1])
-    plot_one_director(show1)
+    director = dbclient.get_director(sys.argv[1])
+
+    if argc < 3:
+        plot_one_director(director)
+    elif sys.argv[2] == "runtime":
+        plot_one_director_runtime(director)
 
 
 
