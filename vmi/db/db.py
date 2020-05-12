@@ -26,6 +26,7 @@ class DbClient:
 		if (self.pickler.has(show_metadata)):
 			logging.info("Show %s was found in the pickle DB!" % show_metadata.title)
 			show = self.pickler.get(show_metadata)
+			return show
 		logging.info("Scraping data for show %s..." % show_metadata.title)
 		show = self.net.get_show(show_metadata)
 		logging.info("Done scraping data for show %s!" % show_metadata.title)
