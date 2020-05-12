@@ -28,10 +28,6 @@ def _setup_season(show, season, fig, ax):
     # Set background
     ax.set_facecolor(Constants.BACKGROUND)
 
-    # Set colors to cycle for each season
-    # TODO, not needed.
-    ax.set_prop_cycle(color=Constants.COLORS)
-
     # Title
     insights = SeasonInsights(season)
     ax.set_title(Formatters.format_season_title(show, season, insights), fontsize=Constants.SUBTITLE_SIZE)
@@ -115,16 +111,20 @@ def _plot_season(show, season, fig, ax, save = False):
     gx.extend(x)
     gy.extend(y)
 
+    # Set the color to be the same color it would have been in the overall
+    # show plot. #NiceToHave
+    color = Constants.COLORS[(season.number - 1) % len(Constants.COLORS)]
+
     # Plots the interpolation of season.episode_list for each season.
     if (season.episode_count > 3):
         sp_x = np.linspace(season.episode_list[0].number, season.episode_list[-1].number, len(season.episode_list) * 10)
         sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
-        ax.plot(sp_x, sp_y)
+        ax.plot(sp_x, sp_y,  color=color)
 
     # Plots the per season trend
     z = np.polyfit(x, y, deg=1)
     p = np.poly1d(z)
-    ax.scatter(x, y)
+    ax.scatter(x, y, color=color)
     ax.plot(x, p(x), color=Constants.MIDDLEGROUND)
 
     insights = SeasonInsights(season)
