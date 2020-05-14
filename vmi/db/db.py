@@ -52,10 +52,8 @@ class DbClient:
 		logging.info("Getting movie %s..." % movie_metadata.title)
 		if (self.pickler.has(movie_metadata)):
 			movie = self.pickler.get(movie_metadata)
-			# TODO(ncteisen): clear this once all pickles have imdb data
-			if movie.runtime:
-				logging.info("Movie %s was found in the pickle DB!" % movie.title)
-				return movie
+			logging.info("Movie %s was found in the pickle DB!" % movie.title)
+			return movie
 		logging.info("Scraping data for movie...")
 		movie = self.net.get_movie(movie_metadata)
 		logging.info("Done scraping data for movie %s!" % movie_metadata.title)

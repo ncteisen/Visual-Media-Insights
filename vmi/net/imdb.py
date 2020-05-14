@@ -99,18 +99,20 @@ class ImdbScraper:
 		return episode_data
 
 
-	def _scrape_season(self, show_metadata, season_number):
+	def scrape_season_soup(self, soup, season_number):
 		season_data = ImdbSeasonData()
-
-		season_url = _BASE_IMDB_SHOW_URL.format(imdb_id=show_metadata.imdb_id, season=season_number)
-		content = requests.get(season_url)
-		soup = Soup(content.text, features="html.parser")
-
 		for div in soup.find_all('div', {'class': 'list_item'}):
 			episode_data = self._scrape_episode(div, season_number)
 			if (episode_data):
 				season_data.episode_list.append(episode_data)
 		return season_data
+
+
+	def _scrape_season(self, show_metadata, season_number):
+		season_url = _BASE_IMDB_SHOW_URL.format(imdb_id=show_metadata.imdb_id, season=season_number)
+		content = requests.get(season_url)
+		soup = Soup(content.text, features="html.parser")
+		return self.scrape_season_soup(soup, season_number)
 
 
 	# Fetch episode info for a given show metadata from IMDB.
@@ -156,20 +158,33 @@ class ImdbScraper:
 		return movie_metadata
 
 
-	def scrape_director(self, imdb_id):
-		director_url = _BASE_IMDB_DIRECTOR_URL_.format(imdb_id=imdb_id)
-		content = requests.get(director_url)
-		soup = Soup(content.text, features="html.parser")
+	def _scrape_director_name(self, soup):
+		name_overview_div = soup.find('div', {'id': 'name-overview-widget'})
+		if (name_overview_div):
+			name_div = name_overview_div.find('span', {'class': 'itemprop'})
+			return name_div.text
+
+		logging.error("Unable to find name for director!")
+
+
+	def scrape_director_soup(self, soup):
 		director_data = ImdbDirectorData()
-		name_overview_div = soup.find('div', {'class': 'name-overview-widget'})
-		name_div = name_overview_div.find('span', {'class': 'itemprop'})
-		director_data.name = name_div.text
+
+		director_data.name = self._scrape_director_name(soup);
+
 		for div in soup.find_all('div', {'class': 'filmo-row'}):
 			if (div['id'].startswith('director')):
 				movie_metadata = self._scrape_movie_metadata(div)
 				if (movie_metadata):
 					director_data.movie_metadata_list.append(movie_metadata)
 		return director_data
+
+
+	def scrape_director(self, imdb_id):
+		director_url = _BASE_IMDB_DIRECTOR_URL_.format(imdb_id=imdb_id)
+		content = requests.get(director_url)
+		soup = Soup(content.text, features="html.parser")
+		return this.scrape_director_soup(soup)
 
 
 	def _parse_num(self, money):
@@ -180,7 +195,7 @@ class ImdbScraper:
 		movie_url = _BASE_IMDB_MOVIE_URL.format(imdb_id=imdb_id)
 		content = requests.get(movie_url)
 		soup = Soup(content.text, features="html.parser")
-		return this.scrape_movie_soup(soup)
+		return self.scrape_movie_soup(soup)
 
 
 	def scrape_movie_soup(self, soup):
@@ -208,7 +223,8 @@ class ImdbScraper:
 		if (iterator):
 			iterator = iterator.findNext('div')
 			time = iterator.find('time')
-			movie_data.runtime = int(time.text[:-3])
+			if (time):
+				movie_data.runtime = int(time.text[:-3])
 
 
 		# best effor scrape for rating count
