@@ -185,18 +185,19 @@ class ImdbScraper:
 
 		# scrape box office info
 		iterator = soup.find("h3", string="Box Office")
-		for _ in range(4):
-			iterator = iterator.findNext('div')
-			h4 = iterator.find('h4')
-			if not h4: continue
-			if "Budget" in h4.text:
-				movie_data.budget = self._parse_num(h4.next_sibling)
-			if "Opening Weekend USA" in h4.text:
-				movie_data.opening_weekend = self._parse_num(h4.next_sibling)
-			if "Gross USA" in h4.text:
-				movie_data.us_boxoffice = self._parse_num(h4.next_sibling)
-			if "Cumulative Worldwide Gross" in h4.text:
-				movie_data.worldwide_boxoffice = self._parse_num(h4.next_sibling)
+		if (iterator):
+			for _ in range(4):
+				iterator = iterator.findNext('div')
+				h4 = iterator.find('h4')
+				if not h4: continue
+				if "Budget" in h4.text:
+					movie_data.budget = self._parse_num(h4.next_sibling)
+				if "Opening Weekend USA" in h4.text:
+					movie_data.opening_weekend = self._parse_num(h4.next_sibling)
+				if "Gross USA" in h4.text:
+					movie_data.us_boxoffice = self._parse_num(h4.next_sibling)
+				if "Cumulative Worldwide Gross" in h4.text:
+					movie_data.worldwide_boxoffice = self._parse_num(h4.next_sibling)
 
 
 		# scrape runtime

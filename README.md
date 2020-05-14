@@ -31,10 +31,10 @@ cd <THIS REPO>
 
 # 2. Set up virtual environment
 python -m venv .venv
-.venv/bin/activate
+source .venv/bin/activate
 
 # 3. Install reqs
-python -m pip install -r requirements
+python -m pip install -r requirements.txt
 
 # 4. get and export OMDB API Key
 # http://www.omdbapi.com/apikey.aspx
