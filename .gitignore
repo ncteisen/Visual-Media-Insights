@@ -1,0 +1,6 @@
+apikey.txt
+*.pyc
+.venv
+output/*
+data
+.DS_Store
