@@ -180,10 +180,13 @@ class ImdbScraper:
 		movie_url = _BASE_IMDB_MOVIE_URL.format(imdb_id=imdb_id)
 		content = requests.get(movie_url)
 		soup = Soup(content.text, features="html.parser")
+		return this.scrape_movie_soup(soup)
+
+
+	def scrape_movie_soup(self, soup):
 		movie_data = ImdbMovieData()
 
-
-		# scrape box office info
+		# best effort scrape for box office info
 		iterator = soup.find("h3", string="Box Office")
 		if (iterator):
 			for _ in range(4):
@@ -200,25 +203,27 @@ class ImdbScraper:
 					movie_data.worldwide_boxoffice = self._parse_num(h4.next_sibling)
 
 
-		# scrape runtime
+		# best effort scrape of runtime
 		iterator = soup.find("h3", string="Technical Specs")
-		iterator = iterator.findNext('div')
-		time = iterator.find('time')
-		movie_data.runtime = int(time.text[:-3])
+		if (iterator):
+			iterator = iterator.findNext('div')
+			time = iterator.find('time')
+			movie_data.runtime = int(time.text[:-3])
 
 
-		# scrape rating count
+		# best effor scrape for rating count
 		rating_count_span = soup.find('span', {'itemprop': 'ratingCount'})
 		if (rating_count_span):
 			movie_data.rating_count = self._parse_num(rating_count_span.text)
 
 
-		# scrape genres
+		# best effort scrape for genres
 		genre_h4 = soup.find("h4", string="Genres:")
-		genre_span = genre_h4.parent
-		if (genre_span):
-			for a in genre_span.find_all('a'):
-				movie_data.genre_list.append(a.text.strip())
+		if (genre_h4):
+			genre_span = genre_h4.parent
+			if (genre_span):
+				for a in genre_span.find_all('a'):
+					movie_data.genre_list.append(a.text.strip())
 
 
 		return movie_data
