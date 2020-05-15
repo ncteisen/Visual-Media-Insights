@@ -55,11 +55,6 @@ def _format_xlabel(title):
     return title
 
 
-def _format_ylabel_money(ax):
-    formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
-    ax.yaxis.set_major_formatter(formatter)
-
-
 def _plot_ratings(director, fig, ax, save=False):
 
     xlabels = []
@@ -163,6 +158,42 @@ def _plot_runtime(director, fig, ax, save=False):
             director.slug + "-runtime")
 
 
+def _plot_budget(director, fig, ax, save=False):
+
+    xlabels = []
+    gx, gy = [], []
+
+    x = range(len(director.movie_list))
+    y = list(map(lambda m: m.budget, director.movie_list))
+
+    formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
+    ax.yaxis.set_major_formatter(formatter)
+
+    xlabels.extend(map(lambda m: _format_xlabel(m.title), director.movie_list))
+
+    gx.extend(x)
+    gy.extend(y)
+
+    # Plots the interpolation of movies.
+    if (len(director.movie_list) > Constants.SPLINE_K):
+        sp_x = np.linspace(0, len(director.movie_list) - 1,
+                           len(director.movie_list) * 10)
+        sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
+        ax.plot(sp_x, sp_y)
+
+    # Ticks
+    ax.set_xticks(range(len(xlabels)))
+    ax.set_xticklabels(xlabels, rotation=65)
+
+    insights = DirectorInsights(director)
+    _format_footnote_movies_runtime(ax, insights)
+
+    if save:
+        Saver.savefig(
+            Constants.DIRECTOR_OUTPUT_DIR,
+            director.slug + "-budget")
+
+
 def _format_movie_title_runtime(movie):
     mins = movie.runtime
     hours = mins // 60
@@ -214,6 +245,15 @@ def plot_one_director_runtime(director):
     logging.info("Done!")
 
 
+def plot_one_director_budget(director):
+    logging.info("Plotting movies for %s..." % director.name)
+    fig, ax = plt.subplots(**_subplot_args(len(director.movie_list)))
+    ax.set_ylabel("movie budget", fontsize=Constants.LABEL_SIZE)
+    _setup(director, fig, ax)
+    _plot_budget(director, fig, ax, True)
+    logging.info("Done!")
+
+
 if __name__ == "__main__":
 
     # setup
@@ -231,3 +271,5 @@ if __name__ == "__main__":
         plot_one_director(director)
     elif sys.argv[2] == "runtime":
         plot_one_director_runtime(director)
+    elif sys.argv[2] == "budget":
+        plot_one_director_budget(director)
