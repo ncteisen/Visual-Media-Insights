@@ -12,6 +12,7 @@ _BASE_IMDB_SHOW_URL = "https://www.imdb.com/title/{imdb_id}/episodes?season={sea
 _BASE_IMDB_DIRECTOR_URL_ = "https://www.imdb.com/name/{imdb_id}"
 _BASE_IMDB_EPISODE_REVIEW_URL = "https://www.imdb.com/title/{imdb_id}/reviews"
 _BASE_IMDB_MOVIE_URL = "https://www.imdb.com/title/{imdb_id}"
+_BASE_IMDB_NAME_SEARCH_URL_ = "https://www.imdb.com/find?q={name}&s=nm"
 
 # All this info can be retrieved from the episode list page on IMDB.
 class ImdbEpisodeData:
@@ -184,7 +185,7 @@ class ImdbScraper:
 		director_url = _BASE_IMDB_DIRECTOR_URL_.format(imdb_id=imdb_id)
 		content = requests.get(director_url)
 		soup = Soup(content.text, features="html.parser")
-		return this.scrape_director_soup(soup)
+		return self.scrape_director_soup(soup)
 
 
 	def _parse_num(self, money):
@@ -244,6 +245,27 @@ class ImdbScraper:
 
 		return movie_data
 
+
+	def scrape_director_imdb_id_by_name(self, name):
+		search_url = _BASE_IMDB_NAME_SEARCH_URL_.format(name=name)
+		content = requests.get(search_url)
+		soup = Soup(content.text, features="html.parser")
+		return self.scrape_name_soup(name, soup)
+
+
+	def scrape_name_soup(self, name, soup):
+		# result table.
+		table = soup.find("table", {'class': 'findList'})
+		if not table:
+			logging.error("No match found for %s! Try using imdb_id.", name)
+			raise SystemExit(1)
+		# find the first row of the results.
+		row = table.findNext('tr')
+		# name data.
+		td = soup.find('td', {'class': 'result_text'})
+		a = td.findNext('a')
+		link = a['href']
+		return link.split('/')[2]
 
 
 # module testing only

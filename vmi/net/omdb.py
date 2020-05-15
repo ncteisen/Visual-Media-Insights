@@ -96,7 +96,7 @@ $ export OMDB_API_KEY=<YOUR_KEY>
 		data.title = movie_info_json["Title"]
 		data.year = movie_info_json["Year"]
 		data.imdb_rating = float(movie_info_json["imdbRating"])
-		if movie_info_json["BoxOffice"] != 'N/A':
+		if "BoxOffice" in movie_info_json and movie_info_json["BoxOffice"] != 'N/A':
 			data.box_office = int(movie_info_json["BoxOffice"].replace("$", "").replace(",", ""))
 		return data
 

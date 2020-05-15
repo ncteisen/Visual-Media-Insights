@@ -83,6 +83,10 @@ class Net:
 			genre_list=imdb_movie_data.genre_list)
 
 
+	def get_director_imdb_id_by_name(self, name):
+		return self.imdb.scrape_director_imdb_id_by_name(name)
+
+
 # module testing only
 if __name__ == "__main__":
 	if (len(sys.argv)) < 2:
@@ -90,7 +94,6 @@ if __name__ == "__main__":
 		raise SystemExit(1)
 
 	net = Net()
-	director = net.get_director_metadata(sys.argv[1])
-	for movie_metadata in director.movie_metadata_list:
-		movie = net.get_movie(movie_metadata)
-		print(movie)
+	director_imdb_id = net.get_director_imdb_id_by_name(sys.argv[1])
+	director = net.get_director_metadata(director_imdb_id)
+	print (director.name)

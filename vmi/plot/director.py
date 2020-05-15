@@ -26,7 +26,10 @@ def _subplot_args(episode_count):
 
 
 def _format_one_title(director):
-    return "{title}".format(title=director.name)
+    insights = DirectorInsights(director)
+    return "{title} - ({rating:.2f}/10)".format(
+        title=director.name,
+        rating=insights.avg_movie_rating)
 
 
 def _setup(director, fig, ax):
@@ -214,7 +217,7 @@ if __name__ == "__main__":
         print("Usage: python -m plot.graph <DIRECTOR ID>")
         raise SystemExit(1)
 
-    director = dbclient.get_director(sys.argv[1])
+    director = dbclient.get_director_by_name(sys.argv[1])
 
     if argc < 3:
         plot_one_director(director)

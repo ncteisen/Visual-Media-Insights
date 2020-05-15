@@ -18,6 +18,13 @@ def test_martin_scorsese(datadir):
 	assert(director_data.name == "Martin Scorsese")
 	assert(len(director_data.movie_metadata_list) > 0)
 
+# sanity test for Martin Scorsese
+def test_martin_scorsese_search(datadir):
+	scraper = ImdbScraper()
+	soup = Soup(open(datadir / 'martin-scorsese-search.htm'), 'html.parser')
+	imdb_id = scraper.scrape_name_soup(soup)
+	assert(imdb_id == "nm0000217")
+
 # regression test for missing box office and runtime info
 def test_satoshi_kon(datadir):
 	scraper = ImdbScraper()

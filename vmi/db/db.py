@@ -44,7 +44,7 @@ class DbClient:
 			return director_metadata
 		logging.info("Scraping data for director...")
 		director_metadata = self.net.get_director_metadata(director_metadata.imdb_id)
-		logging.info("Done scraping data for director %s!" % director_metadata.name)
+		logging.info("Done scraping data for director metadata %s!" % director_metadata.name)
 		self.pickler.put(director_metadata)
 		return director_metadata
 
@@ -70,10 +70,16 @@ class DbClient:
 		return Director(director_metadata, movie_list)
 
 
+	def get_director_by_name(self, name):
+		imdb_id = self.net.get_director_imdb_id_by_name(name)
+		logging.info("Found imdb_id for %s!" % name)
+		return self.get_director(imdb_id)
+
+
 
 # module testing only
 if __name__ == "__main__":
 	# setup
 	LoggerConfig()
 	dbclient = DbClient()
-	dbclient.get_director(sys.argv[1])
+	dbclient.get_director_by_name(sys.argv[1])
