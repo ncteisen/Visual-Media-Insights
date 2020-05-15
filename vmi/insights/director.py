@@ -27,12 +27,40 @@ class DirectorInsights:
         return statistics.mean([m.rating for m in self.director.movie_list])
 
     @property
+    def movies_with_runtime(self):
+    	return [m for m in self.director.movie_list if m.runtime]
+
+    @property
     def longest_movie(self):
-        return max(self.director.movie_list, key=lambda m: m.runtime)
+        return max(self.movies_with_runtime, key=lambda m: m.runtime)
 
     @property
     def shortest_movie(self):
-        return min(self.director.movie_list, key=lambda m: m.runtime)
+        return min(self.movies_with_runtime, key=lambda m: m.runtime)
+
+    @property
+    def movies_with_budget(self):
+    	return [m for m in self.director.movie_list if m.budget]
+
+    @property
+    def highest_budget_movie(self):
+        return max(self.movies_with_budget, key=lambda m: m.budget)
+
+    @property
+    def lowest_budget_movie(self):
+        return min(self.movies_with_budget, key=lambda m: m.budget)
+
+    @property
+    def movies_with_boxoffice(self):
+    	return [m for m in self.director.movie_list if m.boxoffice_worldwide]
+
+    @property
+    def highest_boxoffice_movie(self):
+        return max(self.movies_with_boxoffice, key=lambda m: m.boxoffice_worldwide)
+
+    @property
+    def lowest_boxoffice_movie(self):
+        return min(self.movies_with_boxoffice, key=lambda m: m.boxoffice_worldwide)
 
 
 if __name__ == "__main__":

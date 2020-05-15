@@ -34,16 +34,12 @@ def _format_one_title(director):
 
 
 def _setup(director, fig, ax):
-
     # Set background
     ax.set_facecolor(Constants.BACKGROUND)
-
     # Set colors to cycle for each season
     ax.set_prop_cycle(color=Constants.COLORS)
-
     # Title
     ax.set_title(_format_one_title(director), fontsize=Constants.SUBTITLE_SIZE)
-
     # Labels
     x_label = "%d movies" % len(director.movie_list)
     ax.set_xlabel(x_label, fontsize=Constants.LABEL_SIZE)
@@ -54,40 +50,39 @@ def _format_xlabel(title):
         return title[:_MAX_XLABEL_LEN] + "..."
     return title
 
-
-def _plot_ratings(director, fig, ax, save=False):
+def _plot(fig, ax, data, titles):
 
     xlabels = []
     gx, gy = [], []
 
-    x = range(len(director.movie_list))
-    y = list(map(lambda m: m.rating, director.movie_list))
+    x = range(len(data))
+    y = data
 
-    xlabels.extend(map(lambda m: _format_xlabel(m.title), director.movie_list))
+    xlabels.extend(map(lambda t: _format_xlabel(t), titles))
 
     gx.extend(x)
     gy.extend(y)
 
-    # Plots the interpolation of season.episode_list for each season.
-    if (len(director.movie_list) > Constants.SPLINE_K):
-        sp_x = np.linspace(0, len(director.movie_list) - 1,
-                           len(director.movie_list) * 10)
+    # Plots the interpolation of movies.
+    if (len(data) > Constants.SPLINE_K):
+        sp_x = np.linspace(0, len(data) - 1, len(data) * 10)
         sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
         ax.plot(sp_x, sp_y)
-
-    # Plots the trend
-    z = np.polyfit(x, y, deg=1)
-    p = np.poly1d(z)
+    
+    # Plots the datapoints
     ax.scatter(x, y)
-    ax.plot(x, p(x), color=Constants.MIDDLEGROUND)
 
     # Ticks
     ax.set_xticks(range(len(xlabels)))
     ax.set_xticklabels(xlabels, rotation=65)
 
+
+def _plot_ratings(director, fig, ax, save=False):
+    data = [m.rating for m in director.movie_list]
+    titles = [m.title for m in director.movie_list]
+    _plot(fig, ax, data, titles)
     insights = DirectorInsights(director)
     _format_footnote_movies(ax, insights)
-
     if save:
         Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug + "-rating")
 
@@ -123,35 +118,14 @@ def _format_footnote_movies(ax, insights):
 
 
 def _plot_runtime(director, fig, ax, save=False):
-
-    xlabels = []
-    gx, gy = [], []
-
-    x = range(len(director.movie_list))
-    y = list(map(lambda m: m.runtime, director.movie_list))
-
+    insights = DirectorInsights(director)
+    data = [m.runtime for m in insights.movies_with_runtime]
+    titles = [m.title for m in insights.movies_with_runtime]
+    _plot(fig, ax, data, titles)
     formatter = ticker.FuncFormatter(lambda x, pos: '%d min' % x)
     ax.yaxis.set_major_formatter(formatter)
-
-    xlabels.extend(map(lambda m: _format_xlabel(m.title), director.movie_list))
-
-    gx.extend(x)
-    gy.extend(y)
-
-    # Plots the interpolation of movies.
-    if (len(director.movie_list) > Constants.SPLINE_K):
-        sp_x = np.linspace(0, len(director.movie_list) - 1,
-                           len(director.movie_list) * 10)
-        sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
-        ax.plot(sp_x, sp_y)
-
-    # Ticks
-    ax.set_xticks(range(len(xlabels)))
-    ax.set_xticklabels(xlabels, rotation=65)
-
     insights = DirectorInsights(director)
     _format_footnote_movies_runtime(ax, insights)
-
     if save:
         Saver.savefig(
             Constants.DIRECTOR_OUTPUT_DIR,
@@ -159,39 +133,30 @@ def _plot_runtime(director, fig, ax, save=False):
 
 
 def _plot_budget(director, fig, ax, save=False):
-
-    xlabels = []
-    gx, gy = [], []
-
-    x = range(len(director.movie_list))
-    y = list(map(lambda m: m.budget, director.movie_list))
-
+    insights = DirectorInsights(director)
+    data = [m.budget for m in insights.movies_with_budget]
+    titles = [m.title for m in insights.movies_with_budget]
+    _plot(fig, ax, data, titles)
     formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
     ax.yaxis.set_major_formatter(formatter)
-
-    xlabels.extend(map(lambda m: _format_xlabel(m.title), director.movie_list))
-
-    gx.extend(x)
-    gy.extend(y)
-
-    # Plots the interpolation of movies.
-    if (len(director.movie_list) > Constants.SPLINE_K):
-        sp_x = np.linspace(0, len(director.movie_list) - 1,
-                           len(director.movie_list) * 10)
-        sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
-        ax.plot(sp_x, sp_y)
-
-    # Ticks
-    ax.set_xticks(range(len(xlabels)))
-    ax.set_xticklabels(xlabels, rotation=65)
-
-    insights = DirectorInsights(director)
-    _format_footnote_movies_runtime(ax, insights)
-
     if save:
         Saver.savefig(
             Constants.DIRECTOR_OUTPUT_DIR,
             director.slug + "-budget")
+
+
+def _plot_boxoffice(director, fig, ax, save=False):
+    insights = DirectorInsights(director)
+    data = [m.boxoffice_worldwide for m in insights.movies_with_boxoffice]
+    titles = [m.title for m in insights.movies_with_boxoffice]
+    _plot(fig, ax, data, titles)
+    formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
+    ax.yaxis.set_major_formatter(formatter)
+    # TODO(ncteisen): format footer
+    if save:
+        Saver.savefig(
+            Constants.DIRECTOR_OUTPUT_DIR,
+            director.slug + "-boxoffice")
 
 
 def _format_movie_title_runtime(movie):
@@ -253,6 +218,14 @@ def plot_one_director_budget(director):
     _plot_budget(director, fig, ax, True)
     logging.info("Done!")
 
+def plot_one_director_boxoffice(director):
+    logging.info("Plotting movies for %s..." % director.name)
+    fig, ax = plt.subplots(**_subplot_args(len(director.movie_list)))
+    ax.set_ylabel("movie budget", fontsize=Constants.LABEL_SIZE)
+    _setup(director, fig, ax)
+    _plot_boxoffice(director, fig, ax, True)
+    logging.info("Done!")
+
 
 if __name__ == "__main__":
 
@@ -273,3 +246,5 @@ if __name__ == "__main__":
         plot_one_director_runtime(director)
     elif sys.argv[2] == "budget":
         plot_one_director_budget(director)
+    elif sys.argv[2] == "boxoffice":
+        plot_one_director_boxoffice(director)
