@@ -41,31 +41,29 @@ if __name__ == "__main__":
     LoggerConfig()
     dbclient = DbClient()
 
-    director = dbclient.get_director(sys.argv[1])
+    director = dbclient.get_director_by_name(sys.argv[1])
     insights = DirectorInsights(director)
 
     print("\n\n\n")
     print("///////////////////////   Director Summary   ////////////////////////")
-    print("Director: %s" % director.name)
-    print("  avg movie rating: {avg_movie_rating:.2f}/10".format(
-        avg_movie_rating=insights.avg_movie_rating))
+    print(f"Director: {director.name}")
+    print(f"  avg movie rating: {insights.avg_movie_rating:.2f}/10")
     best_movie = insights.best_rated_movie
-    print("  best rated:  {title} ({rating}/10)".format(
-        title=best_movie.title,
-        rating=best_movie.rating))
+    print(f"  best rated:  {best_movie.title} ({best_movie.rating}/10)")
     worst_movie = insights.worst_rated_movie
-    print("  worst rated: {title} ({rating}/10)".format(
-        title=worst_movie.title,
-        rating=worst_movie.rating))
-    print("  avg movie rating: {avg_movie_rating:.2f}/10".format(
-        avg_movie_rating=insights.avg_movie_rating))
+    print(f"  worst rated: {worst_movie.title} ({worst_movie.rating}/10)")
+    print(f"  avg movie rating: {insights.avg_movie_rating:.2f}/10")
     print("")
 
     print("//////////////////////   Movie Summary   //////////////////////")
     for movie in director.movie_list:
-        print("Movie %s" % movie.title)
-        print("  year: {year}".format(
-            year=movie.year))
-        print("  rating: {rating:.1f}/10".format(
-            rating=movie.rating))
+        print(f"Movie  {movie.title}")
+        print(f"  year: {movie.year}")
+        print(f"  rating: {movie.rating:.1f}/10")
+        print(f"  budget: {movie.budget}")
+        print(f"  opening_weekend: {movie.opening_weekend}")
+        print(f"  boxoffice_usa: {movie.boxoffice_usa}")
+        print(f"  boxoffice_worldwide: {movie.boxoffice_worldwide}")
+        print(f"  runtime: {movie.runtime}")
+        print(f"  genre_list: {movie.genre_list}")
         print("")
