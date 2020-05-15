@@ -4,3 +4,4 @@ apikey.txt
 output/*
 data
 .DS_Store
+.pytype

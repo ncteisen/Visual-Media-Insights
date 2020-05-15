@@ -114,7 +114,3 @@ if __name__ == "__main__":
         raise SystemExit(1)
 
     scraper = OmdbApiClient()
-    data = scraper.get_movie_data(sys.argv[1])
-    print(data.imdb_rating)
-    print(data.metascore)
-    print(data.box_office)
