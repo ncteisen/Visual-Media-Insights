@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 
 from pathlib import Path
 
+
 class Constants:
     BACKGROUND = 'black'
     MIDDLEGROUND = 'gray'
@@ -48,12 +49,10 @@ class Formatters:
         return "{title} - ({rating}/10)".format(
             title=show.title, rating=show.rating)
 
-
     @staticmethod
     def format_episode_label(episode):
         return "{label} - ({rating}/10)".format(
             title=show.title, rating=show.rating)
-
 
     @staticmethod
     def format_episode_title(episode):
@@ -62,12 +61,11 @@ class Formatters:
             title=unidecode.unidecode(episode.title),
             score=episode.score)
 
-
     @staticmethod
     def format_season_title(show, season, insights):
         return "{title}, season {number} ({rating:.2f}/10)".format(
-            title=show.title, 
-            number=season.number, 
+            title=show.title,
+            number=season.number,
             rating=insights.avg_episode_rating)
 
 

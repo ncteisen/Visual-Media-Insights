@@ -15,11 +15,12 @@ from vmi.util.logger import LoggerConfig
 
 _MAX_XLABEL_LEN = 10
 
+
 def _subplot_args(episode_count):
     return {
         # TODO(ncteisen): support dynamic height
-        "figsize": (10 + 5 * max(episode_count / 25, 1), 10), 
-        "dpi": 80, 
+        "figsize": (10 + 5 * max(episode_count / 25, 1), 10),
+        "dpi": 80,
         "facecolor": Constants.BACKGROUND,
         "sharey": True
     }
@@ -59,7 +60,7 @@ def _format_ylabel_money(ax):
     ax.yaxis.set_major_formatter(formatter)
 
 
-def _plot_ratings(director, fig, ax, save = False):
+def _plot_ratings(director, fig, ax, save=False):
 
     xlabels = []
     gx, gy = [], []
@@ -74,7 +75,8 @@ def _plot_ratings(director, fig, ax, save = False):
 
     # Plots the interpolation of season.episode_list for each season.
     if (len(director.movie_list) > Constants.SPLINE_K):
-        sp_x = np.linspace(0, len(director.movie_list) - 1, len(director.movie_list) * 10)
+        sp_x = np.linspace(0, len(director.movie_list) - 1,
+                           len(director.movie_list) * 10)
         sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
         ax.plot(sp_x, sp_y)
 
@@ -91,7 +93,8 @@ def _plot_ratings(director, fig, ax, save = False):
     insights = DirectorInsights(director)
     _format_footnote_movies(ax, insights)
 
-    if save: Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug + "-rating")
+    if save:
+        Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug + "-rating")
 
 
 def _format_movie_title(movie):
@@ -108,22 +111,23 @@ def _format_worst_rated_movie(movie):
     return "Worst:  {formatted_title}".format(
         formatted_title=_format_movie_title(movie))
 
+
 def _format_footnote_movies(ax, insights):
     best = insights.best_rated_movie
-    ax.annotate(_format_best_rated_movie(best), (0,0), (0, -80), 
-        xycoords='axes fraction', 
-        textcoords='offset points', 
-        va='top', 
-        fontsize=Constants.LABEL_SIZE)
+    ax.annotate(_format_best_rated_movie(best), (0, 0), (0, -80),
+                xycoords='axes fraction',
+                textcoords='offset points',
+                va='top',
+                fontsize=Constants.LABEL_SIZE)
     worst = insights.worst_rated_movie
-    ax.annotate(_format_worst_rated_movie(worst), (0,0), (0, -100), 
-        xycoords='axes fraction', 
-        textcoords='offset points', 
-        va='top', 
-        fontsize=Constants.LABEL_SIZE)
+    ax.annotate(_format_worst_rated_movie(worst), (0, 0), (0, -100),
+                xycoords='axes fraction',
+                textcoords='offset points',
+                va='top',
+                fontsize=Constants.LABEL_SIZE)
 
 
-def _plot_runtime(director, fig, ax, save = False):
+def _plot_runtime(director, fig, ax, save=False):
 
     xlabels = []
     gx, gy = [], []
@@ -141,7 +145,8 @@ def _plot_runtime(director, fig, ax, save = False):
 
     # Plots the interpolation of movies.
     if (len(director.movie_list) > Constants.SPLINE_K):
-        sp_x = np.linspace(0, len(director.movie_list) - 1, len(director.movie_list) * 10)
+        sp_x = np.linspace(0, len(director.movie_list) - 1,
+                           len(director.movie_list) * 10)
         sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
         ax.plot(sp_x, sp_y)
 
@@ -152,7 +157,10 @@ def _plot_runtime(director, fig, ax, save = False):
     insights = DirectorInsights(director)
     _format_footnote_movies_runtime(ax, insights)
 
-    if save: Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug + "-runtime")
+    if save:
+        Saver.savefig(
+            Constants.DIRECTOR_OUTPUT_DIR,
+            director.slug + "-runtime")
 
 
 def _format_movie_title_runtime(movie):
@@ -172,19 +180,20 @@ def _format_shortest_rated_movie(movie):
     return "Shortest:  {formatted_title}".format(
         formatted_title=_format_movie_title_runtime(movie))
 
+
 def _format_footnote_movies_runtime(ax, insights):
     longest = insights.longest_movie
-    ax.annotate(_format_longest_rated_movie(longest), (0,0), (0, -80), 
-        xycoords='axes fraction', 
-        textcoords='offset points', 
-        va='top', 
-        fontsize=Constants.LABEL_SIZE)
+    ax.annotate(_format_longest_rated_movie(longest), (0, 0), (0, -80),
+                xycoords='axes fraction',
+                textcoords='offset points',
+                va='top',
+                fontsize=Constants.LABEL_SIZE)
     shortest = insights.shortest_movie
-    ax.annotate(_format_shortest_rated_movie(shortest), (0,0), (0, -100), 
-        xycoords='axes fraction', 
-        textcoords='offset points', 
-        va='top', 
-        fontsize=Constants.LABEL_SIZE)
+    ax.annotate(_format_shortest_rated_movie(shortest), (0, 0), (0, -100),
+                xycoords='axes fraction',
+                textcoords='offset points',
+                va='top',
+                fontsize=Constants.LABEL_SIZE)
 
 
 def plot_one_director(director):
@@ -211,7 +220,6 @@ if __name__ == "__main__":
     LoggerConfig()
     dbclient = DbClient()
 
-
     argc = len(sys.argv)
     if argc < 2:
         print("Usage: python -m plot.graph <DIRECTOR ID>")
@@ -223,8 +231,3 @@ if __name__ == "__main__":
         plot_one_director(director)
     elif sys.argv[2] == "runtime":
         plot_one_director_runtime(director)
-
-
-
-
-

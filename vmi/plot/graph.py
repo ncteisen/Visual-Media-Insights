@@ -13,11 +13,12 @@ from vmi.insights.season import SeasonInsights
 from vmi.plot.common import Constants, Formatters, Saver
 from vmi.util.logger import LoggerConfig
 
+
 def _subplot_args(episode_count):
     return {
         # TODO(ncteisen): support dynamic height
-        "figsize": (10 + 5 * max(episode_count / 25, 1), 10), 
-        "dpi": 80, 
+        "figsize": (10 + 5 * max(episode_count / 25, 1), 10),
+        "dpi": 80,
         "facecolor": Constants.BACKGROUND,
         "sharey": True
     }
@@ -30,7 +31,12 @@ def _setup_season(show, season, fig, ax):
 
     # Title
     insights = SeasonInsights(season)
-    ax.set_title(Formatters.format_season_title(show, season, insights), fontsize=Constants.SUBTITLE_SIZE)
+    ax.set_title(
+        Formatters.format_season_title(
+            show,
+            season,
+            insights),
+        fontsize=Constants.SUBTITLE_SIZE)
 
     # Labels
     x_label = "%d episodes" % season.episode_count
@@ -46,16 +52,19 @@ def _setup(show, fig, ax):
     ax.set_prop_cycle(color=Constants.COLORS)
 
     # Title
-    ax.set_title(Formatters.format_show_title(show), fontsize=Constants.SUBTITLE_SIZE)
+    ax.set_title(
+        Formatters.format_show_title(show),
+        fontsize=Constants.SUBTITLE_SIZE)
 
     # Labels
     x_label = "%d episodes" % show.episode_count
     if show.season_count > 1:
-        x_label = "{x_label} - {season_count} seasons".format(x_label=x_label, season_count=show.season_count)
+        x_label = "{x_label} - {season_count} seasons".format(
+            x_label=x_label, season_count=show.season_count)
     ax.set_xlabel(x_label, fontsize=Constants.LABEL_SIZE)
 
 
-def _plot(show, fig, ax, save = False):
+def _plot(show, fig, ax, save=False):
 
     xlabels = []
     gx, gy = [], []
@@ -74,8 +83,10 @@ def _plot(show, fig, ax, save = False):
 
         # Plots the interpolation of season.episode_list for each season.
         if (season.episode_count > Constants.SPLINE_K):
-            sp_x = np.linspace(season.episode_list[0].index, season.episode_list[-1].index, len(season.episode_list) * 10)
-            sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
+            sp_x = np.linspace(
+                season.episode_list[0].index, season.episode_list[-1].index, len(season.episode_list) * 10)
+            sp_y = interpolate.make_interp_spline(
+                x, y, k=Constants.SPLINE_K)(sp_x)
             ax.plot(sp_x, sp_y)
 
         # Plots the per season trend
@@ -96,9 +107,11 @@ def _plot(show, fig, ax, save = False):
     ax.set_xticks(range(1, len(xlabels) + 1))
     ax.set_xticklabels(xlabels, rotation=90)
 
-    if save: Saver.savefig(Constants.GRAPH_OUTPUT_DIR, show.slug)
+    if save:
+        Saver.savefig(Constants.GRAPH_OUTPUT_DIR, show.slug)
 
-def _plot_season(show, season, fig, ax, save = False):
+
+def _plot_season(show, season, fig, ax, save=False):
 
     xlabels = []
     gx, gy = [], []
@@ -117,9 +130,11 @@ def _plot_season(show, season, fig, ax, save = False):
 
     # Plots the interpolation of season.episode_list for each season.
     if (season.episode_count > 3):
-        sp_x = np.linspace(season.episode_list[0].number, season.episode_list[-1].number, len(season.episode_list) * 10)
+        sp_x = np.linspace(season.episode_list[0].number,
+                           season.episode_list[-1].number,
+                           len(season.episode_list) * 10)
         sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
-        ax.plot(sp_x, sp_y,  color=color)
+        ax.plot(sp_x, sp_y, color=color)
 
     # Plots the per season trend
     z = np.polyfit(x, y, deg=1)
@@ -134,7 +149,9 @@ def _plot_season(show, season, fig, ax, save = False):
     ax.set_xticks(range(1, len(xlabels) + 1))
     ax.set_xticklabels(xlabels, rotation=90)
 
-    if save: Saver.savefig(Constants.GRAPH_OUTPUT_DIR, show.slug + "-season-" + str(season.number))
+    if save:
+        Saver.savefig(Constants.GRAPH_OUTPUT_DIR,
+                      show.slug + "-season-" + str(season.number))
 
 
 def _format_compare_title(show1, show2):
@@ -150,19 +167,20 @@ def _format_worst_episode(episode):
     return "Worst:  {formatted_title}".format(
         formatted_title=Formatters.format_episode_title(episode))
 
+
 def _format_footnote_episodes(ax, insights):
     best = insights.best_episode
-    ax.annotate(_format_best_episode(best), (0,0), (0, -80), 
-        xycoords='axes fraction', 
-        textcoords='offset points', 
-        va='top', 
-        fontsize=Constants.LABEL_SIZE)
+    ax.annotate(_format_best_episode(best), (0, 0), (0, -80),
+                xycoords='axes fraction',
+                textcoords='offset points',
+                va='top',
+                fontsize=Constants.LABEL_SIZE)
     worst = insights.worst_episode
-    ax.annotate(_format_worst_episode(worst), (0,0), (0, -100), 
-        xycoords='axes fraction', 
-        textcoords='offset points', 
-        va='top', 
-        fontsize=Constants.LABEL_SIZE)
+    ax.annotate(_format_worst_episode(worst), (0, 0), (0, -100),
+                xycoords='axes fraction',
+                textcoords='offset points',
+                va='top',
+                fontsize=Constants.LABEL_SIZE)
 
 
 def plot_one_show(show):
@@ -172,6 +190,7 @@ def plot_one_show(show):
     _setup(show, fig, ax)
     _plot(show, fig, ax, True)
     logging.info("Done!")
+
 
 def plot_one_season(show, season):
     logging.info("Plotting season %d for %s..." % (season.number, show.title))
@@ -184,8 +203,13 @@ def plot_one_season(show, season):
 
 def plot_two_shows(show1, show2):
     logging.info("Plotting %s VS %s..." % (show1.title, show2.title))
-    fig, (ax1, ax2) = plt.subplots(1, 2, **_subplot_args(show1.episode_count + show2.episode_count))
-    st = fig.suptitle(_format_compare_title(show1, show2), fontsize=Constants.TITLE_SIZE)
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2, **_subplot_args(show1.episode_count + show2.episode_count))
+    st = fig.suptitle(
+        _format_compare_title(
+            show1,
+            show2),
+        fontsize=Constants.TITLE_SIZE)
     st.set_y(0.97)
     ax1.set_ylabel("episode score", fontsize=Constants.LABEL_SIZE)
     _setup(show1, fig, ax1)
@@ -197,6 +221,7 @@ def plot_two_shows(show1, show2):
     fname = "{show1}--VS--{show2}".format(show1=show1.slug, show2=show2.slug)
     Saver.savefig(Constants.GRAPH_OUTPUT_DIR, fname)
     logging.info("Done!")
+
 
 def _format_compare_season_title(show1, season1, show2, season2):
     if (show1.slug == show2.slug):
@@ -213,9 +238,17 @@ def _format_compare_season_title(show1, season1, show2, season2):
 
 
 def plot_two_seasons(show1, season1, show2, season2):
-    logging.info("Plotting %s season %d VS %s season %d..." % (show1.title, season1.number, show2.title, season2.number))
-    fig, (ax1, ax2) = plt.subplots(1, 2, **_subplot_args(season1.episode_count + season2.episode_count))
-    st = fig.suptitle(_format_compare_season_title(show1, season1, show2, season2), fontsize=Constants.TITLE_SIZE)
+    logging.info("Plotting %s season %d VS %s season %d..." %
+                 (show1.title, season1.number, show2.title, season2.number))
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2, **_subplot_args(season1.episode_count + season2.episode_count))
+    st = fig.suptitle(
+        _format_compare_season_title(
+            show1,
+            season1,
+            show2,
+            season2),
+        fontsize=Constants.TITLE_SIZE)
     st.set_y(0.97)
     ax1.set_ylabel("episode score", fontsize=Constants.LABEL_SIZE)
     _setup_season(show1, season1, fig, ax1)
@@ -243,7 +276,6 @@ if __name__ == "__main__":
     LoggerConfig()
     dbclient = DbClient()
 
-
     argc = len(sys.argv)
     if (argc < 2):
         print("Usage: python -m plot.graph <TITLE> [<SEASON>]")
@@ -267,14 +299,15 @@ if __name__ == "__main__":
         if (sys.argv[3].isdigit()):
             # Two seasons from the same show mode
             show1 = dbclient.get_show(sys.argv[1])
-            plot_two_seasons(show1, _get_season(show1, sys.argv[2]), show1, _get_season(show1, sys.argv[3]))
+            plot_two_seasons(
+                show1, _get_season(
+                    show1, sys.argv[2]), show1, _get_season(
+                    show1, sys.argv[3]))
         else:
             # Two seasons from different show modes
             show1 = dbclient.get_show(sys.argv[1])
             show2 = dbclient.get_show(sys.argv[3])
-            plot_two_seasons(show1, _get_season(show1, sys.argv[2]), show2, _get_season(show2, sys.argv[4]))
-
-
-
-
-
+            plot_two_seasons(
+                show1, _get_season(
+                    show1, sys.argv[2]), show2, _get_season(
+                    show2, sys.argv[4]))
