@@ -49,7 +49,6 @@ class Formatters:
         return "{title} - ({rating}/10)".format(
             title=show.title, rating=show.rating)
 
-
     @staticmethod
     def format_episode_title(episode):
         return "{label} - {title} ({score}/10)".format(
