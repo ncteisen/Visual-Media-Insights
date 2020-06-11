@@ -36,8 +36,6 @@ def _format_one_title(director):
 def _setup(director, fig, ax):
     # Set background
     ax.set_facecolor(Constants.BACKGROUND)
-    # Set colors to cycle for each season
-    ax.set_prop_cycle(color=Constants.COLORS)
     # Title
     ax.set_title(_format_one_title(director), fontsize=Constants.SUBTITLE_SIZE)
     # Labels
@@ -50,7 +48,7 @@ def _format_xlabel(title):
         return title[:_MAX_XLABEL_LEN] + "..."
     return title
 
-def _plot(fig, ax, data, titles):
+def _plot(fig, ax, data, titles, color):
 
     xlabels = []
     gx, gy = [], []
@@ -64,13 +62,13 @@ def _plot(fig, ax, data, titles):
     gy.extend(y)
 
     # Plots the interpolation of movies.
-    if (len(data) > Constants.SPLINE_K):
+    if (len(data) > 1):
         sp_x = np.linspace(0, len(data) - 1, len(data) * 10)
-        sp_y = interpolate.make_interp_spline(x, y, k=Constants.SPLINE_K)(sp_x)
-        ax.plot(sp_x, sp_y)
+        sp_y = interpolate.make_interp_spline(x, y, k=1)(sp_x)
+        ax.plot(sp_x, sp_y, color=color)
     
     # Plots the datapoints
-    ax.scatter(x, y)
+    ax.scatter(x, y, color=color)
 
     # Ticks
     ax.set_xticks(range(len(xlabels)))
@@ -80,7 +78,7 @@ def _plot(fig, ax, data, titles):
 def _plot_ratings(director, fig, ax, save=False):
     data = [m.rating for m in director.movie_list]
     titles = [m.title for m in director.movie_list]
-    _plot(fig, ax, data, titles)
+    _plot(fig, ax, data, titles, Constants.COLORS[0])
     insights = DirectorInsights(director)
     _format_footnote_movies(ax, insights)
     if save:
@@ -121,7 +119,7 @@ def _plot_runtime(director, fig, ax, save=False):
     insights = DirectorInsights(director)
     data = [m.runtime for m in insights.movies_with_runtime]
     titles = [m.title for m in insights.movies_with_runtime]
-    _plot(fig, ax, data, titles)
+    _plot(fig, ax, data, titles, Constants.COLORS[1])
     formatter = ticker.FuncFormatter(lambda x, pos: '%d min' % x)
     ax.yaxis.set_major_formatter(formatter)
     insights = DirectorInsights(director)
@@ -136,7 +134,7 @@ def _plot_budget(director, fig, ax, save=False):
     insights = DirectorInsights(director)
     data = [m.budget for m in insights.movies_with_budget]
     titles = [m.title for m in insights.movies_with_budget]
-    _plot(fig, ax, data, titles)
+    _plot(fig, ax, data, titles, Constants.COLORS[2])
     formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
     ax.yaxis.set_major_formatter(formatter)
     if save:
@@ -149,7 +147,7 @@ def _plot_boxoffice(director, fig, ax, save=False):
     insights = DirectorInsights(director)
     data = [m.boxoffice_worldwide for m in insights.movies_with_boxoffice]
     titles = [m.title for m in insights.movies_with_boxoffice]
-    _plot(fig, ax, data, titles)
+    _plot(fig, ax, data, titles, Constants.COLORS[3])
     formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
     ax.yaxis.set_major_formatter(formatter)
     # TODO(ncteisen): format footer
@@ -157,6 +155,27 @@ def _plot_boxoffice(director, fig, ax, save=False):
         Saver.savefig(
             Constants.DIRECTOR_OUTPUT_DIR,
             director.slug + "-boxoffice")
+
+def _plot_scatter(director, fig, ax):
+    # Set background
+    ax.set_facecolor("white")
+    # Title
+    ax.set_title(_format_one_title(director), fontsize=Constants.SUBTITLE_SIZE)
+
+    insights = DirectorInsights(director)
+    z = [m.budget for m in insights.movies_with_budget]
+    y = [m.rating for m in insights.movies_with_budget]
+    n = [f"{m.title} ({m.year})" for m in insights.movies_with_budget]
+    
+    # Plots the datapoints
+    ax.scatter(z, y, color=Constants.COLORS[4])
+
+    # Ticks
+    formatter = ticker.FuncFormatter(lambda x, pos: '$%1.1fM' % (x * 1e-6))
+    ax.xaxis.set_major_formatter(formatter)
+
+    for i, txt in enumerate(n):
+        ax.annotate(txt, (z[i], y[i]))
 
 
 def _format_movie_title_runtime(movie):
@@ -193,6 +212,15 @@ def _format_footnote_movies_runtime(ax, insights):
 
 
 def plot_one_director(director):
+    logging.info("Plotting movies for %s..." % director.name)
+    fig, ax1 = plt.subplots(**_subplot_args(len(director.movie_list)))
+    ax1.set_ylabel("movie rating", fontsize=Constants.LABEL_SIZE)
+    ax1.set_xlabel("movie budget", fontsize=Constants.LABEL_SIZE)
+    _plot_scatter(director, fig, ax1)
+    logging.info("Done!")
+    Saver.savefig(Constants.DIRECTOR_OUTPUT_DIR, director.slug)
+
+def plot_one_director_rating(director):
     logging.info("Plotting movies for %s..." % director.name)
     fig, ax = plt.subplots(**_subplot_args(len(director.movie_list)))
     ax.set_ylabel("movie rating", fontsize=Constants.LABEL_SIZE)
@@ -242,6 +270,8 @@ if __name__ == "__main__":
 
     if argc < 3:
         plot_one_director(director)
+    elif sys.argv[2] == "rating":
+        plot_one_director_rating(director)
     elif sys.argv[2] == "runtime":
         plot_one_director_runtime(director)
     elif sys.argv[2] == "budget":
