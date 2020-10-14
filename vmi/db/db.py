@@ -37,6 +37,22 @@ class DbClient:
         self.pickler.put(show)
         return show
 
+    def remove_show(self, title):
+        logging.info("Removing show %s..." % title)
+        show_metadata = self.net.get_show_metadata(title)
+        logging.info("Got handle for show %s!" % show_metadata.title)
+        if self.pickler.has(show_metadata):
+            logging.info(
+                "Show %s was found in the pickle DB!" %
+                show_metadata.title)
+            self.pickler.remove(show_metadata)
+            logging.info(
+                "Show %s was deleted from the pickle DB" %
+                show_metadata.title)
+        else:
+            logging.info("Show %s was not found in the pickle DB!"%
+                show_metadata.title)
+
     def _get_director_metadata(self, imdb_id):
         logging.info("Getting director...")
         # HACK
@@ -88,4 +104,4 @@ if __name__ == "__main__":
     # setup
     LoggerConfig()
     dbclient = DbClient()
-    dbclient.get_director_by_name(sys.argv[1])
+    dbclient.remove_show(sys.argv[1])

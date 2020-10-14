@@ -61,11 +61,11 @@ def _plot(fig, ax, data, titles, color):
     gx.extend(x)
     gy.extend(y)
 
-    # Plots the interpolation of movies.
-    if (len(data) > 1):
-        sp_x = np.linspace(0, len(data) - 1, len(data) * 10)
-        sp_y = interpolate.make_interp_spline(x, y, k=1)(sp_x)
-        ax.plot(sp_x, sp_y, color=color)
+    # # Plots the interpolation of movies.
+    # if (len(data) > 1):
+    #     sp_x = np.linspace(0, len(data) - 1, len(data) * 10)
+    #     sp_y = interpolate.make_interp_spline(x, y, k=1)(sp_x)
+    #     ax.plot(sp_x, sp_y, color=color)
     
     # Plots the datapoints
     ax.scatter(x, y, color=color)

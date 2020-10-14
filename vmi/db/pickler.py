@@ -21,6 +21,9 @@ class Pickler:
     def put(self, show):
         pickle.dump(show, open(self.dbpath + show.imdb_id, "wb"))
 
+    def remove(self, show):
+        os.remove(self.dbpath + show.imdb_id)
+
 
 # module testing only
 if __name__ == "__main__":
